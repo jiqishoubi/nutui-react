@@ -1,13 +1,11 @@
 # ConfigProvider
 
-## Intro
-
 Used to configure NutUI-React components globally, provide theme customization, internationalization support.
 
-## Install
+## Import
 
 ```tsx
-import { ConfigProvider } from '@nutui/nutui-react';
+import { ConfigProvider } from '@nutui/nutui-react'
 ```
 
 ## Demo
@@ -39,39 +37,15 @@ The ConfigProvider component provides the ability to override CSS variables, and
 
 :::demo
 
-```tsx
-import React from 'react';
-import {
-  ConfigProvider,
-  Cell,
-  Button,
-  Rate
-} from "@nutui/nutui-react";
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
-const darkTheme = {
-  nutuiColorPrimary: 'green',
-  nutuiColorPrimaryStop1: 'green',
-  nutuiColorPrimaryStop2: 'green',
-}
-const App = () => {
-  return (
-    <ConfigProvider theme={darkTheme}>
-      <Cell.Group>
-        <Cell>
-          <Rate defaultValue={3} />
-        </Cell>
-        <Cell>
-          <Button type="primary" size="large">
-            Submit
-          </Button>
-        </Cell>
-      </Cell.Group>
-    </ConfigProvider>
-  )
-}
+:::
 
-export default App;
-```
+:::demo
+
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
+
+:::
 
 #### CSS variables
 
@@ -105,35 +79,33 @@ page {
 
 ```
 
-:::
-
 ### Internationalization
 
 NutUI-React provides a ConfigProvider component for global configuration of internationalized copywriting. The following languages are currently supported:
 
-*   Chinese Simplified | zh-CN
-*   Chinese Traditional (Taiwan) | zh-TW
-*   Uyghur | zh-UG
-*   English (American) | en-US
-*   Indonesian | id-ID
+- Chinese Simplified | zh-CN
+- Chinese Traditional (Taiwan) | zh-TW
+- Uyghur | zh-UG
+- English (American) | en-US
+- Indonesian | id-ID
 
 :::demo
 
-```tsx
-import React from 'react';
-import { ConfigProvider, Textarea } from "@nutui/nutui-react";
-import en from "@nutui/nutui-react/dist/locales/en-US";
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
 
-const App = () => {
-  return (
-    <ConfigProvider locale={en}>
-      <Textarea />
-    </ConfigProvider>
-  )
-}
+:::
 
-export default App;
-```
+:::demo
+
+<CodeBlock src='h5/demo4.tsx'></CodeBlock>
+
+:::
+
+### RTL
+
+:::demo
+
+<CodeBlock src='h5/demo5.tsx'></CodeBlock>
 
 :::
 

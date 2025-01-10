@@ -1,21 +1,20 @@
 import React, {
   FunctionComponent,
-  useState,
-  useEffect,
   ReactElement,
-  ReactPortal,
   ReactNode,
+  ReactPortal,
+  useEffect,
+  useState,
 } from 'react'
 import { createPortal } from 'react-dom'
 import { CSSTransition } from 'react-transition-group'
 import classNames from 'classnames'
 import { Close } from '@nutui/icons-react-taro'
 import { EnterHandler, ExitHandler } from 'react-transition-group/Transition'
-import { View, ITouchEvent } from '@tarojs/components'
-
+import { ITouchEvent, View } from '@tarojs/components'
 import {
-  OverlayProps,
   defaultOverlayProps,
+  OverlayProps,
 } from '@/packages/overlay/overlay.taro'
 import Overlay from '@/packages/overlay/index.taro'
 import { ComponentDefaults } from '@/utils/typings'
@@ -247,8 +246,10 @@ export const Popup: FunctionComponent<
   const renderPop = () => {
     return (
       <CSSTransition
+        nodeRef={refObject}
         classNames={transitionName}
-        unmountOnExit
+        mountOnEnter
+        unmountOnExit={destroyOnClose}
         timeout={duration}
         in={innerVisible}
         onEntered={onHandleOpened}
@@ -270,24 +271,20 @@ export const Popup: FunctionComponent<
 
   const renderNode = () => {
     return (
-      <>
+      <View catchMove>
         {overlay ? (
-          <>
-            <Overlay
-              style={overlayStyles}
-              className={overlayClassName}
-              visible={innerVisible}
-              closeOnOverlayClick={closeOnOverlayClick}
-              lockScroll={lockScroll}
-              duration={duration}
-              onClick={onHandleClickOverlay}
-            />
-            {renderPop()}
-          </>
-        ) : (
-          <>{renderPop()}</>
-        )}
-      </>
+          <Overlay
+            style={overlayStyles}
+            className={overlayClassName}
+            visible={innerVisible}
+            closeOnOverlayClick={closeOnOverlayClick}
+            lockScroll={lockScroll}
+            duration={duration}
+            onClick={onHandleClickOverlay}
+          />
+        ) : null}
+        {renderPop()}
+      </View>
     )
   }
 
@@ -303,5 +300,4 @@ export const Popup: FunctionComponent<
   return <>{renderToContainer(portal as Teleport, renderNode())}</>
 }
 
-Popup.defaultProps = defaultProps
 Popup.displayName = 'NutPopup'

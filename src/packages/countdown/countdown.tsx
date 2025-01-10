@@ -6,7 +6,6 @@ import React, {
   ForwardRefRenderFunction,
   useImperativeHandle,
 } from 'react'
-import { useConfig } from '@/packages/configprovider'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
 import { padZero } from '@/utils/pad-zero'
 
@@ -44,7 +43,6 @@ const InternalCountDown: ForwardRefRenderFunction<
   unknown,
   Partial<CountDownProps>
 > = (props, ref) => {
-  const { locale } = useConfig()
   const {
     paused,
     startTime,
@@ -82,7 +80,7 @@ const InternalCountDown: ForwardRefRenderFunction<
   const getTimeStamp = (timeStr?: string | number) => {
     if (!timeStr) return Date.now()
     let t = timeStr
-    t = t > 0 ? +t : t.toString().replace(/-/g, '/')
+    t = Number(t) > 0 ? +t : t.toString().replace(/-/g, '/')
     return new Date(t).getTime()
   }
 
@@ -197,7 +195,6 @@ const InternalCountDown: ForwardRefRenderFunction<
     return formatCache
   }
 
-  // 暂定
   const pause = () => {
     cancelAnimationFrame(stateRef.current.timer)
     stateRef.current.counting = false
@@ -306,5 +303,4 @@ export const CountDown = React.forwardRef<unknown, Partial<CountDownProps>>(
   InternalCountDown
 )
 
-CountDown.defaultProps = defaultProps
 CountDown.displayName = 'NutCountDown'

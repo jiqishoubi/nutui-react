@@ -28,7 +28,6 @@ const defaultProps = {
   defaultValue: '',
   showCount: false,
   maxLength: 140,
-  placeholder: '',
   readOnly: false,
   disabled: false,
   autoSize: false,
@@ -57,7 +56,7 @@ export const TextArea: FunctionComponent<Partial<TextAreaProps>> = (props) => {
   const compositionRef = useRef(false)
 
   const format = (value: string) => {
-    if (maxLength !== undefined && value.length > maxLength) {
+    if (maxLength !== -1 && value.length > maxLength) {
       return value.substring(0, maxLength)
     }
     return value
@@ -124,7 +123,9 @@ export const TextArea: FunctionComponent<Partial<TextAreaProps>> = (props) => {
         onFocus={(e: any) => handleFocus(e)}
         autoHeight={autoSize}
         maxlength={maxLength}
-        placeholder={placeholder || locale.placeholder}
+        placeholder={
+          placeholder === undefined ? locale.placeholder : placeholder
+        }
         {...rest}
       />
       {showCount && (
@@ -136,5 +137,4 @@ export const TextArea: FunctionComponent<Partial<TextAreaProps>> = (props) => {
   )
 }
 
-TextArea.defaultProps = defaultProps
 TextArea.displayName = 'NutTextArea'

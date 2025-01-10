@@ -8,7 +8,7 @@ import React, {
   useMemo,
 } from 'react'
 import classNames from 'classnames'
-import Taro from '@tarojs/taro'
+import { createSelectorQuery } from '@tarojs/taro'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
 import CollapseContext from '../collapse/context'
 
@@ -51,7 +51,6 @@ export const CollapseItem: FunctionComponent<
 
   const classPrefix = 'nut-collapse-item'
   const context = useContext(CollapseContext)
-  // 获取 Dom 元素
   const wrapperRef: any = useRef(null)
   const contentRef: any = useRef(null)
   const [refRandomId] = useState(() => Math.random().toString(36).slice(-8))
@@ -85,7 +84,7 @@ export const CollapseItem: FunctionComponent<
 
   const getRect = (selector: string) => {
     return new Promise((resolve) => {
-      Taro.createSelectorQuery()
+      createSelectorQuery()
         .select(selector)
         .boundingClientRect()
         .exec((rect = []) => {
@@ -180,5 +179,4 @@ export const CollapseItem: FunctionComponent<
   )
 }
 
-CollapseItem.defaultProps = defaultProps
 CollapseItem.displayName = 'NutCollapseItem'

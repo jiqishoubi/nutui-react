@@ -1,88 +1,28 @@
 # Overlay 遮罩层
 
-## 介绍
-
 创建一个遮罩层，通常用于阻止用户进行其他操作
 
-## 安装
+## 引入
 
 ```tsx
-import { OverLay } from '@nutui/nutui-react';
+import { Overlay } from '@nutui/nutui-react'
 ```
 
-## 代码演示
+## 示例代码
 
 ### 基础用法
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        显示遮罩层
-      </Button>
-      <Overlay
-        visible={visible}
-        onClick={onClose}
-        style={{'--nutui-overlay-zIndex': 2020,}}
-        afterShow={() => {
-          console.log('afterShow')
-        }}
-      />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
 :::
 
-### 遮罩样式
+### 自定义遮罩样式
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        遮罩样式
-      </Button>
-      <Overlay
-        visible={visible}
-        onClick={onClose}
-        style={{
-          backgroundColor: 'rgba(0, 0, 0, .2)',
-          '--nutui-overlay-zIndex': 2000,
-        }}
-      />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
 
 :::
 
@@ -90,40 +30,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        设置动画时间
-      </Button>
-      <Overlay
-        visible={visible}
-        onClick={onClose}
-        style={{ '--nutui-overlay-animation-duration': '2.5s' }}
-        duration={2500}
-        afterShow={() => {
-          console.log('afterShow')
-        }}
-        afterClose={() => {
-          console.log('afterClose')
-        }}
-      />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
 
 :::
 
@@ -131,29 +38,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        不锁定背景滚动
-      </Button>
-      <Overlay visible={visible} onClick={onClose} lockScroll={false} />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo4.tsx'></CodeBlock>
 
 :::
 
@@ -161,49 +46,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const WrapperStyle = {
-  display: 'flex',
-  height: '100%',
-  alignItems: 'center',
-  justifyContent: 'center'
-}
-const ContentStyle = {
-  display: 'flex',
-  width: '150px',
-  height: '150px',
-  background: '#fff',
-  borderRadius: '8px',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: 'red'
-}
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow2 = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="success" onClick={handleToggleShow2}>
-        嵌套内容
-      </Button>
-      <Overlay visible={visible} onClick={onClose}>
-        <div className="wrapper" style={WrapperStyle}>
-          <div className="content" style={ContentStyle}>这里是正文</div>
-        </div>
-      </Overlay>
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo5.tsx'></CodeBlock>
 
 :::
 
@@ -211,33 +54,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        点击遮罩不关闭
-      </Button>
-      <Overlay visible={visible} closeOnOverlayClick={false}>
-        <div className="wrapper">
-          <div className="content" onClick={onClose}>这里是正文</div>
-        </div>
-      </Overlay>
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo6.tsx'></CodeBlock>
 
 :::
 
@@ -249,7 +66,8 @@ export default App;
 | --- | --- | --- | --- |
 | visible | 当前组件是否显示 | `boolean` | `false` |
 | duration | 动画时长，单位毫秒 | `number` | `300` |
-| lockScroll | 背景是否锁定 | `boolean` | `true` |
+| lockScroll | 背景是否锁定，strict 用于支持 iOS12 | `boolean\|strict` | `true` |
+| zIndex | 设置组件页面层级 | `number` | `1000` |
 | closeOnOverlayClick | 是否点击遮罩关闭 | `boolean` | `true` |
 | onClick | 点击时触发 | `event: Event` | `-` |
 | afterClose | 完全关闭后触发 | `() => void` | `-` |
@@ -267,4 +85,4 @@ export default App;
 | \--nutui-overlay-zIndex | overlay 的 z-index | `1000` |
 | \--nutui-overlay-content-bg-color | 遮罩层嵌套内容背景颜色 | `$white` |
 | \--nutui-overlay-content-color | 遮罩层嵌套内容字体颜色 | `$color-title` |
-| \--nutui-overlay-animation-duration| 遮罩层动画延时的时长 | `0.3s` |
+| \--nutui-overlay-animation-duration | 遮罩层动画延时的时长 | `0.3s` |

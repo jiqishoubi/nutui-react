@@ -3,6 +3,8 @@ import React, {
   useImperativeHandle,
   ForwardRefRenderFunction,
   PropsWithChildren,
+  useRef,
+  useEffect,
 } from 'react'
 import classNames from 'classnames'
 import Taro, {
@@ -11,7 +13,7 @@ import Taro, {
   getEnv,
   chooseMedia,
 } from '@tarojs/taro'
-import { Photograph } from '@nutui/icons-react-taro'
+import { Failure, Photograph } from '@nutui/icons-react-taro'
 import Button from '@/packages/button/index.taro'
 import {
   ERROR,
@@ -27,7 +29,6 @@ import { FileItem } from './file-item'
 import { usePropsValue } from '@/utils/use-props-value'
 import { Preview } from '@/packages/uploader/preview.taro'
 
-/** 图片的尺寸 */
 interface sizeType {
   /** 原图 */
   original: string
@@ -35,7 +36,6 @@ interface sizeType {
   compressed: string
 }
 
-/** 图片的来源 */
 interface sourceType {
   /** 从相册选图 */
   album: string
@@ -43,7 +43,6 @@ interface sourceType {
   camera: string
 }
 
-/** 视频的来源 */
 interface mediaType {
   /** 只能拍摄图片或从相册选择图片 */
   image: string
@@ -74,6 +73,7 @@ export interface UploaderProps extends BasicComponent {
   previewType: 'picture' | 'list'
   fit: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
   uploadIcon?: React.ReactNode
+  deleteIcon?: React.ReactNode
   uploadLabel?: React.ReactNode
   name: string
   accept: string
@@ -113,6 +113,9 @@ export interface UploaderProps extends BasicComponent {
     files: Taro.chooseImage.ImageFile[] | Taro.chooseMedia.ChooseMedia[] | any
   ) => void
   onChange?: (files: FileItem[]) => void
+  beforeUpload?: (
+    files: Taro.chooseImage.ImageFile[] | Taro.chooseMedia.ChooseMedia[] | any
+  ) => Promise<File[] | boolean>
   beforeXhrUpload?: (xhr: XMLHttpRequest, options: any) => void
   beforeDelete?: (file: FileItem, files: FileItem[]) => boolean
   onFileItemClick?: (file: FileItem, index: number) => void
@@ -127,6 +130,7 @@ const defaultProps = {
   mediaType: ['image', 'video'],
   camera: 'back',
   uploadIcon: <Photograph size="20px" color="#808080" />,
+  deleteIcon: <Failure color="rgba(0,0,0,0.6)" />,
   uploadLabel: '',
   previewType: 'picture',
   fit: 'cover',
@@ -158,6 +162,7 @@ const InternalUploader: ForwardRefRenderFunction<
   const {
     children,
     uploadIcon,
+    deleteIcon,
     uploadLabel,
     accept,
     name,
@@ -194,6 +199,7 @@ const InternalUploader: ForwardRefRenderFunction<
     onUpdate,
     onFailure,
     onOversize,
+    beforeUpload,
     beforeXhrUpload,
     beforeDelete,
     ...restProps
@@ -220,15 +226,17 @@ const InternalUploader: ForwardRefRenderFunction<
       clearUploadQueue()
     },
   }))
-
+  const fileListRef = useRef<FileItem[]>([])
+  useEffect(() => {
+    fileListRef.current = fileList
+  }, [fileList])
   const clearUploadQueue = (index = -1) => {
     if (index > -1) {
       uploadQueue.splice(index, 1)
       setUploadQueue(uploadQueue)
     } else {
       setUploadQueue([])
-      fileList.splice(0, fileList.length)
-      setFileList([...fileList])
+      setFileList([])
     }
   }
 
@@ -252,10 +260,9 @@ const InternalUploader: ForwardRefRenderFunction<
         document.body.appendChild(obj)
       }
     }
-    if (getEnv() === 'WEAPP' && chooseMedia) {
-      // chooseMedia 目前只支持微信小程序原生，其余端全部使用 chooseImage API
+    if (['WEAPP', 'JD', 'WEB'].includes(getEnv()) && chooseMedia) {
+      // 其余端全部使用 chooseImage API
       chooseMedia({
-        /** 最多可以选择的文件个数 */
         count: multiple ? (maxCount as number) * 1 - fileList.length : 1,
         /** 文件类型 */
         mediaType: mediaType as any,
@@ -264,19 +271,16 @@ const InternalUploader: ForwardRefRenderFunction<
         /** 拍摄视频最长拍摄时间，单位秒。时间范围为 3s 至 30s 之间 */
         maxDuration,
         /** 仅对 mediaType 为 image 时有效，是否压缩所选文件 */
-        sizeType: [],
+        sizeType,
         /** 仅在 sourceType 为 camera 时生效，使用前置或后置摄像头 */
         camera,
-        /** 接口调用失败的回调函数 */
         fail: (res: any) => {
           onFailure && onFailure(res)
         },
-        /** 接口调用成功的回调函数 */
         success: onChangeMedia,
       })
     } else {
       chooseImage({
-        // 选择数量
         count: multiple ? (maxCount as number) * 1 - fileList.length : 1,
         // 可以指定是原图还是压缩图，默认二者都有
         sizeType,
@@ -301,11 +305,10 @@ const InternalUploader: ForwardRefRenderFunction<
     uploadOption.headers = headers
     uploadOption.taroFilePath = fileItem.path
     uploadOption.beforeXhrUpload = beforeXhrUpload
-
     uploadOption.onStart = (option: UploadOptions) => {
       clearUploadQueue(index)
       setFileList(
-        fileList.map((item) => {
+        fileListRef.current.map((item) => {
           if (item.uid === fileItem.uid) {
             item.status = 'ready'
             item.message = locale.uploader.readyUpload
@@ -313,18 +316,17 @@ const InternalUploader: ForwardRefRenderFunction<
           return item
         })
       )
-      onStart && onStart(option)
+      onStart?.(option)
     }
 
     uploadOption.onProgress = (e: any, option: UploadOptions) => {
       setFileList(
-        fileList.map((item) => {
+        fileListRef.current.map((item) => {
           if (item.uid === fileItem.uid) {
             item.status = UPLOADING
             item.message = locale.uploader.uploading
             item.percentage = e.progress
-            onProgress &&
-              onProgress({ e, option, percentage: item.percentage as number })
+            onProgress?.({ e, option, percentage: item.percentage as number })
           }
           return item
         })
@@ -335,7 +337,7 @@ const InternalUploader: ForwardRefRenderFunction<
       responseText: XMLHttpRequest['responseText'],
       option: UploadOptions
     ) => {
-      const list = fileList.map((item) => {
+      const list = fileListRef.current.map((item) => {
         if (item.uid === fileItem.uid) {
           item.status = SUCCESS
           item.message = locale.uploader.success
@@ -355,7 +357,7 @@ const InternalUploader: ForwardRefRenderFunction<
       responseText: XMLHttpRequest['responseText'],
       option: UploadOptions
     ) => {
-      const list = fileList.map((item) => {
+      const list = fileListRef.current.map((item) => {
         if (item.uid === fileItem.uid) {
           item.status = ERROR
           item.message = locale.uploader.error
@@ -372,7 +374,7 @@ const InternalUploader: ForwardRefRenderFunction<
     }
 
     const task = new UploaderTaro(uploadOption)
-    if (props.autoUpload) {
+    if (autoUpload) {
       task.uploadTaro(uploadFile, getEnv())
     } else {
       uploadQueue.push(
@@ -385,6 +387,7 @@ const InternalUploader: ForwardRefRenderFunction<
   }
 
   const readFile = <T extends TFileType>(files: T[]) => {
+    const results: FileItem[] = []
     files.forEach((file: T, index: number) => {
       let fileType = file.type
       const filepath = (file.tempFilePath || file.path) as string
@@ -425,15 +428,15 @@ const InternalUploader: ForwardRefRenderFunction<
       if (preview) {
         fileItem.url = fileType === 'video' ? file.thumbTempFilePath : filepath
       }
-      fileList.push(fileItem)
-      setFileList(fileList)
       executeUpload(fileItem, index)
+      results.push(fileItem)
     })
+    setFileList([...fileList, ...results])
   }
 
   const filterFiles = <T extends TFileType>(files: T[]) => {
-    const maximum = (props.maxCount as number) * 1
-    const maximize = (props.maxFileSize as number) * 1
+    const maximum = (maxCount as number) * 1
+    const maximize = (maxFileSize as number) * 1
     const oversizes = new Array<T>()
     const filterFile = files.filter((file: T) => {
       if (file.size > maximize) {
@@ -442,9 +445,7 @@ const InternalUploader: ForwardRefRenderFunction<
       }
       return true
     })
-    if (oversizes.length) {
-      onOversize && onOversize(files as any)
-    }
+    oversizes.length && onOversize?.(files as any)
 
     const currentFileLength = filterFile.length + fileList.length
     if (currentFileLength > maximum) {
@@ -471,14 +472,34 @@ const InternalUploader: ForwardRefRenderFunction<
     // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
     const { tempFiles } = res
     const _files: Taro.chooseMedia.ChooseMedia[] = filterFiles(tempFiles)
-    readFile(_files)
+    if (beforeUpload) {
+      beforeUpload(new Array<File>().slice.call(_files)).then(
+        (f: Array<File> | boolean) => {
+          const _files: File[] = filterFiles(new Array<File>().slice.call(f))
+          if (!_files.length) res.tempFiles = []
+          readFile(_files)
+        }
+      )
+    } else {
+      readFile(_files)
+    }
   }
 
   const onChangeImage = (res: Taro.chooseImage.SuccessCallbackResult) => {
     // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
     const { tempFiles } = res
     const _files: Taro.chooseImage.ImageFile[] = filterFiles(tempFiles)
-    readFile(_files)
+    if (beforeUpload) {
+      beforeUpload(new Array<File>().slice.call(_files)).then(
+        (f: Array<File> | boolean) => {
+          const _files: File[] = filterFiles(new Array<File>().slice.call(f))
+          if (!_files.length) res.tempFiles = []
+          readFile(_files)
+        }
+      )
+    } else {
+      readFile(_files)
+    }
   }
 
   const handleItemClick = (file: FileItem, index: number) => {
@@ -491,12 +512,16 @@ const InternalUploader: ForwardRefRenderFunction<
         <div className="nut-uploader-slot">
           <>
             {children || (
-              <Button size="small" type="primary">
-                上传文件
+              <Button nativeType="button" size="small" type="primary">
+                {locale.uploader.list}
               </Button>
             )}
-            {maxCount > fileList.length && (
-              <Button className="nut-uploader-input" onClick={_chooseImage} />
+            {Number(maxCount) > fileList.length && (
+              <Button
+                nativeType="button"
+                className="nut-uploader-input"
+                onClick={_chooseImage}
+              />
             )}
           </>
         </div>
@@ -510,28 +535,34 @@ const InternalUploader: ForwardRefRenderFunction<
           onDeleteItem,
           handleItemClick,
           previewUrl,
+          deleteIcon,
           children,
         }}
       />
 
-      {maxCount > fileList.length && previewType === 'picture' && !children && (
-        <div
-          className={`nut-uploader-upload ${previewType} ${
-            disabled ? 'nut-uploader-upload-disabled' : ''
-          }`}
-        >
-          <div className="nut-uploader-icon">
-            {uploadIcon}
-            <span className="nut-uploader-icon-tip">{uploadLabel}</span>
+      {Number(maxCount) > fileList.length &&
+        previewType === 'picture' &&
+        !children && (
+          <div
+            className={`nut-uploader-upload ${previewType} ${
+              disabled ? 'nut-uploader-upload-disabled' : ''
+            }`}
+          >
+            <div className="nut-uploader-icon">
+              {uploadIcon}
+              <span className="nut-uploader-icon-tip">{uploadLabel}</span>
+            </div>
+            <Button
+              nativeType="button"
+              className="nut-uploader-input"
+              onClick={_chooseImage}
+            />
           </div>
-          <Button className="nut-uploader-input" onClick={_chooseImage} />
-        </div>
-      )}
+        )}
     </div>
   )
 }
 
 export const Uploader = React.forwardRef(InternalUploader)
 
-Uploader.defaultProps = defaultProps
 Uploader.displayName = 'NutUploader'

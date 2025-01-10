@@ -15,6 +15,11 @@
         "show": true
       },
       {
+        "name": "official-theme-react",
+        "cName": "官方主题",
+        "eName": "Official Theme"
+      },
+      {
         "name": "theme-react",
         "cName": "主题定制",
         "eName": "Customize Theme",
@@ -512,7 +517,13 @@
           "show": true,
           "taro": true,
           "author": "swag~jun"
-        },
+        }
+      ]
+    },
+    {
+      "name": "数据录入",
+      "enName": "dentry1",
+      "packages": [
         {
           "version": "2.0.0",
           "name": "Menu",

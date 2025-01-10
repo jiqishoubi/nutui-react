@@ -1,11 +1,12 @@
 export interface FormItemRuleWithoutValidator {
   [key: string]: any
+
   regex?: RegExp
   required?: boolean
   message?: string
 }
 
-export type StoreValue = any
+type StoreValue = any
 export type NamePath = string | number
 
 export interface Callbacks<Values = any> {
@@ -20,14 +21,16 @@ export interface Store {
 
 export interface FormInstance<Values = any> {
   getFieldValue: (name: NamePath) => StoreValue
+  setFieldValue: <T = any>(name: NamePath, value: T) => void
   getFieldsValue: (nameList: NamePath[] | true) => { [key: NamePath]: any }
-  setFieldsValue: (value: any) => void
+  setFieldsValue: (value: Store) => void
   resetFields: (fields?: NamePath[]) => void
   submit: () => void
   getInternal: (secret: string) => any
+  validateFields: (nameList?: NamePath[]) => Promise<any[]>
 }
 
-export interface FieldEntity {
+export interface FormFieldEntity {
   onStoreChange: (type?: string) => void
   getNamePath: () => NamePath
   props: {

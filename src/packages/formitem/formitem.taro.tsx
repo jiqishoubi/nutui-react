@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
+import { Text, View } from '@tarojs/components'
 import { BaseFormField } from './types'
 import { Context } from '../form/context'
 import Cell from '@/packages/cell/index.taro'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
 import { isForwardRefComponent } from '@/utils/is-forward-ref-component'
+import { toArray } from '@/utils/to-array'
 import { SECRET } from '@/packages/form/useform.taro'
 
 type TextAlign =
@@ -15,7 +17,11 @@ type TextAlign =
   | 'justify'
   | 'match-parent'
 
-export interface FormItemProps extends BasicComponent, BaseFormField {
+type ShouldUpdate = (prevValue: any, curValue: any) => boolean
+
+export interface FormItemProps
+  extends Omit<BasicComponent, 'children'>,
+    BaseFormField {
   required: boolean
   initialValue: any
   trigger: string
@@ -27,6 +33,10 @@ export interface FormItemProps extends BasicComponent, BaseFormField {
   ) => void
   errorMessageAlign: TextAlign
   validateTrigger: string | string[]
+  shouldUpdate: boolean
+  noStyle: boolean
+  children: ReactNode | ((obj: any) => React.ReactNode)
+  align?: 'flex-start' | 'center' | 'flex-end'
 }
 
 const defaultProps = {
@@ -36,7 +46,8 @@ const defaultProps = {
   label: '',
   rules: [{ required: false, message: '' }],
   errorMessageAlign: 'left',
-  validateTrigger: 'onChange',
+  shouldUpdate: false,
+  noStyle: false,
 } as FormItemProps
 
 export class FormItem extends React.Component<
@@ -53,6 +64,8 @@ export class FormItem extends React.Component<
 
   private componentRef: React.RefObject<any>
 
+  private eventOff: any
+
   constructor(props: FormItemProps) {
     super(props)
     this.componentRef = React.createRef()
@@ -62,29 +75,55 @@ export class FormItem extends React.Component<
   }
 
   componentDidMount() {
+    // Form设置initialValues时的处理
+    const { store = {}, setInitialValues } =
+      this.context.formInstance.getInternal(SECRET)
+    if (
+      this.props.initialValue &&
+      this.props.name &&
+      !Object.keys(store).includes(this.props.name)
+    ) {
+      setInitialValues(
+        { ...store, [this.props.name]: this.props.initialValue },
+        true
+      )
+    }
     // 注册组件实例到FormStore
-    const { registerField } = this.context.getInternal(SECRET)
+    const { registerField, registerUpdate } =
+      this.context.formInstance.getInternal(SECRET)
     this.cancelRegister = registerField(this)
+    // 这里需要增加事件监听，因为此实现属于依赖触发
+    this.eventOff = registerUpdate(this, this.props.shouldUpdate)
   }
 
   componentWillUnmount() {
     if (this.cancelRegister) {
       this.cancelRegister()
     }
+    if (this.eventOff) {
+      this.eventOff()
+    }
   }
 
   // children添加value属性和onChange事件
   getControlled = (children: React.ReactElement) => {
-    const { setFieldsValue, getFieldValue } = this.context
-    const { dispatch } = this.context.getInternal(SECRET)
+    const { setFieldsValue, getFieldValue } = this.context.formInstance
+    const { dispatch } = this.context.formInstance.getInternal(SECRET)
     const { name = '' } = this.props
 
     if (children?.props?.defaultValue) {
-      console.warn('通过 initialValue 设置初始值')
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          '[NutUI] FormItem:',
+          '请通过 initialValue 设置初始值，而不是 defaultValue'
+        )
+      }
     }
+
     const fieldValue = getFieldValue(name)
     const controlled = {
       ...children.props,
+      className: children.props.className,
       [this.props.valuePropName || 'value']:
         fieldValue !== undefined ? fieldValue : this.props.initialValue,
       [this.props.trigger || 'onChange']: (...args: any) => {
@@ -103,26 +142,23 @@ export class FormItem extends React.Component<
       },
     }
     const { validateTrigger } = this.props
-    let validateTriggers: string[] = [this.props.trigger || 'onChange']
-    if (validateTrigger) {
-      validateTriggers =
-        typeof validateTrigger === 'string'
-          ? [...validateTriggers, validateTrigger]
-          : [...validateTriggers, ...validateTrigger]
-      validateTriggers.forEach((trigger) => {
-        const originTrigger = controlled[trigger]
-        controlled[trigger] = (...args: any) => {
-          if (originTrigger) {
-            originTrigger(...args)
-          }
-          if (this.props.rules && this.props.rules.length) {
-            dispatch({
-              name: this.props.name,
-            })
-          }
+    const mergedValidateTrigger =
+      validateTrigger || this.context.validateTrigger
+
+    const validateTriggers: string[] = toArray(mergedValidateTrigger)
+    validateTriggers.forEach((trigger) => {
+      const originTrigger = controlled[trigger]
+      controlled[trigger] = (...args: any) => {
+        if (originTrigger) {
+          originTrigger(...args)
         }
-      })
-    }
+        if (this.props.rules && this.props.rules.length) {
+          dispatch({
+            name: this.props.name,
+          })
+        }
+      }
+    })
 
     if (isForwardRefComponent(children)) {
       controlled.ref = (componentInstance: any) => {
@@ -150,11 +186,18 @@ export class FormItem extends React.Component<
 
   onStoreChange = (type?: string) => {
     if (type === 'reset') {
-      this.context.errors[this.props.name as string] = []
+      this.context.formInstance.errors[this.props.name as string] = []
       this.refresh()
     } else {
       this.forceUpdate()
     }
+  }
+
+  getClassNameWithDirection(className: string) {
+    if (className && this.context.labelPosition) {
+      return `${className} ${className}-${this.context.labelPosition}`
+    }
+    return className
   }
 
   renderLayout = (childNode: React.ReactNode) => {
@@ -166,42 +209,49 @@ export class FormItem extends React.Component<
       className,
       style,
       errorMessageAlign,
+      align,
     } = {
       ...defaultProps,
       ...this.props,
     }
     const requiredInRules = rules?.some((rule: any) => rule.required)
 
-    const item = name ? this.context.errors[name] : []
+    const item = name ? this.context.formInstance.errors[name] : []
 
-    const { starPosition } = this.context
+    const { starPosition } = this.context.formInstance
     const renderStar = (required || requiredInRules) && (
-      <i className="required" />
+      <Text className="nut-form-item-label-required required">*</Text>
     )
     const renderLabel = (
       <>
-        {starPosition === 'left' ? renderStar : null}
-        {label}
+        <Text className="nut-form-item-labeltxt">
+          {starPosition === 'left' ? renderStar : null}
+          {label}
+        </Text>
         {starPosition === 'right' ? renderStar : null}
       </>
     )
     return (
       <Cell
-        className={`nut-form-item ${className}`}
+        className={`${this.getClassNameWithDirection('nut-form-item')} ${className}`}
         style={style}
+        align={align}
         onClick={(e) =>
-          this.props.onClick && this.props.onClick(e, this.componentRef)
+          this.props.onClick && this.props.onClick(e as any, this.componentRef)
         }
       >
         {label ? (
-          <div className="nut-cell-title nut-form-item-label">
+          <View
+            className={`nut-cell-title ${this.getClassNameWithDirection('nut-form-item-label')}`}
+          >
             {renderLabel}
-          </div>
+          </View>
         ) : null}
-        <div className="nut-cell-value nut-form-item-body">
-          <div className="nut-form-item-body-slots">{childNode}</div>
-
-          <div
+        <View
+          className={`nut-cell-value ${this.getClassNameWithDirection('nut-form-item-body')}`}
+        >
+          <View className="nut-form-item-body-slots">{childNode}</View>
+          <View
             className="nut-form-item-body-tips"
             style={{
               textAlign: errorMessageAlign,
@@ -209,8 +259,8 @@ export class FormItem extends React.Component<
             }}
           >
             {item?.[0]?.message}
-          </div>
-        </div>
+          </View>
+        </View>
       </Cell>
     )
   }
@@ -218,13 +268,26 @@ export class FormItem extends React.Component<
   render() {
     const { children } = this.props
     const child = Array.isArray(children) ? children[0] : children
-    const returnChildNode = React.cloneElement(
-      child,
-      this.getControlled(child as React.ReactElement)
-    )
+    let returnChildNode
+    if (!this.props.shouldUpdate) {
+      returnChildNode = React.cloneElement(
+        child,
+        this.getControlled(child as React.ReactElement)
+      )
+    } else {
+      returnChildNode = child(this.context.formInstance)
+    }
+
     return (
       <React.Fragment key={this.state.resetCount}>
-        {this.renderLayout(returnChildNode)}
+        <View
+          className={this.context.disabled ? 'nut-form-item-disabled' : ''}
+          catchMove={this.context.disabled}
+        >
+          {this.props.noStyle
+            ? returnChildNode
+            : this.renderLayout(returnChildNode)}
+        </View>
       </React.Fragment>
     )
   }

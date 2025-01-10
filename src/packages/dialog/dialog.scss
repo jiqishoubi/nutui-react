@@ -19,7 +19,6 @@
   &-outer {
     position: fixed;
     max-height: 100%;
-    overflow-y: auto;
     background-color: $white;
     transition:
       transform 0.2s,
@@ -32,6 +31,43 @@
     border-radius: $dialog-border-radius;
     z-index: $dialog-z-index;
     animation-duration: 0.3s;
+  }
+
+  &-close {
+    position: absolute !important;
+    z-index: 1;
+    cursor: pointer;
+    width: $dialog-close-width;
+    height: $dialog-close-height;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: $dialog-close-top;
+    color: $dialog-close-color;
+    .nut-icon {
+      font-size: 24px;
+      height: 24px;
+      width: 24px;
+    }
+
+    &-top-right {
+      right: $dialog-close-right;
+    }
+
+    &-top-left {
+      left: $dialog-close-left;
+    }
+
+    &-bottom {
+      top: initial;
+      bottom: -56px;
+      left: 50%;
+      transform: translate(-50%);
+    }
+
+    &:active {
+      opacity: 0.7;
+    }
   }
 
   &-header {
@@ -54,6 +90,7 @@
     word-break: break-all;
     white-space: pre-wrap;
     text-align: $dialog-content-text-align;
+    overflow-y: auto;
   }
 
   &-footer {
@@ -95,5 +132,38 @@
     &-ok {
       max-width: $dialog-footer-ok-max-width;
     }
+  }
+}
+
+[dir='rtl'] .nut-dialog,
+.nut-rtl .nut-dialog {
+  &-outer {
+    left: auto;
+    right: 50%;
+    -webkit-transform: translate(50%, -50%);
+    transform: translate(50%, -50%);
+  }
+
+  &-close {
+    &-top-right {
+      right: auto;
+      left: $dialog-close-right;
+    }
+
+    &-top-left {
+      left: auto;
+      right: $dialog-close-left;
+    }
+  }
+
+  &-footer {
+    &-cancel.nut-dialog-footer-cancel {
+      margin-right: 0;
+      margin-left: $dialog-footer-cancel-margin-right;
+    }
+  }
+
+  &-content {
+    text-align: var(--nutui-dialog-content-text-align, right);
   }
 }

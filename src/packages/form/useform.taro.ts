@@ -1,8 +1,16 @@
 import { useRef } from 'react'
 import Schema from 'async-validator'
-import { Store, Callbacks, FormInstance, FieldEntity, NamePath } from './types'
+import { merge } from '@/utils/merge'
+import {
+  Callbacks,
+  FormFieldEntity,
+  FormInstance,
+  NamePath,
+  Store,
+} from './types'
 
 export const SECRET = 'NUT_FORM_INTERNAL'
+type UpdateItem = { entity: FormFieldEntity; condition: any }
 
 /**
  * 用于存储表单的数据
@@ -11,11 +19,13 @@ class FormStore {
   // 初始化数据
   private initialValues: Store = {}
 
+  private updateList: UpdateItem[] = []
+
   // 存放表单中所有的数据 eg. {password: "ddd",username: "123"}
   private store: Store = {}
 
   // 所有的组件实例
-  private fieldEntities: FieldEntity[] = []
+  private fieldEntities: FormFieldEntity[] = []
 
   // 校验成功或失败的回调，onFinish、onFinishFailed
   private callbacks: Callbacks = {}
@@ -65,16 +75,21 @@ class FormStore {
     return fieldsValue
   }
 
+  updateStore(nextStore: Store) {
+    this.store = nextStore
+  }
+
   /**
    * 设置 form 的初始值，之后在 reset 的时候使用
    * @param values
    * @param init
    */
 
-  setInitialValues = (values: Store, init: boolean) => {
+  setInitialValues = (initialValues: Store, init: boolean) => {
+    this.initialValues = initialValues || {}
     if (init) {
-      this.initialValues = values
-      this.store = values
+      const nextStore = merge(initialValues, this.store)
+      this.updateStore(nextStore)
     }
   }
 
@@ -83,11 +98,9 @@ class FormStore {
    * @param newStore { [name]: newValue }
    */
   setFieldsValue = (newStore: any) => {
-    this.store = {
-      ...this.store,
-      ...newStore,
-    }
-    this.fieldEntities.forEach((entity: FieldEntity) => {
+    const nextStore = merge(this.store, newStore)
+    this.updateStore(nextStore)
+    this.fieldEntities.forEach((entity: FormFieldEntity) => {
       const { name } = entity.props
       Object.keys(newStore).forEach((key) => {
         if (key === name) {
@@ -95,6 +108,22 @@ class FormStore {
         }
       })
     })
+    this.updateList.forEach((item: UpdateItem) => {
+      let shouldUpdate = item.condition
+      if (typeof item.condition === 'function') {
+        shouldUpdate = item.condition()
+      }
+      if (shouldUpdate) {
+        item.entity.onStoreChange('update')
+      }
+    })
+  }
+
+  setFieldValue = <T>(name: NamePath, value: T) => {
+    const store = {
+      [name]: value,
+    }
+    this.setFieldsValue(store)
   }
 
   setCallback = (callback: Callbacks) => {
@@ -104,8 +133,14 @@ class FormStore {
     }
   }
 
-  validateEntities = async (entity: FieldEntity, errs: any[]) => {
+  validateEntities = async (entity: FormFieldEntity, errs: any[]) => {
     const { name, rules = [] } = entity.props
+
+    if (!name) {
+      console.warn('Form field missing name property')
+      return
+    }
+
     const descriptor: any = {}
     if (rules.length) {
       // 多条校验规则
@@ -123,7 +158,7 @@ class FormStore {
     // validator.messages()
     try {
       await validator.validate({ [name]: this.store?.[name] })
-    } catch ({ errors }) {
+    } catch ({ errors }: any) {
       if (errors) {
         errs.push(...(errors as any[]))
         this.errors[name] = errors
@@ -148,9 +183,11 @@ class FormStore {
       )
     }
     const errs: any[] = []
-    filterEntities.forEach((entity) => {
-      this.validateEntities(entity, errs)
-    })
+    await Promise.all(
+      filterEntities.map(async (entity) => {
+        await this.validateEntities(entity, errs)
+      })
+    )
     return errs
   }
 
@@ -165,10 +202,22 @@ class FormStore {
 
   resetFields = () => {
     this.errors.length = 0
-    this.store = this.initialValues
-    this.fieldEntities.forEach((entity: FieldEntity) => {
+    const nextStore = merge({}, this.initialValues)
+    this.updateStore(nextStore)
+    this.fieldEntities.forEach((entity: FormFieldEntity) => {
       entity.onStoreChange('reset')
     })
+  }
+
+  // 监听事件
+  registerUpdate = (field: FormFieldEntity, shouldUpdate: any) => {
+    this.updateList.push({
+      entity: field,
+      condition: shouldUpdate,
+    })
+    return () => {
+      this.updateList = this.updateList.filter((i) => i.entity !== field)
+    }
   }
 
   dispatch = ({ name }: { name: string }) => {
@@ -184,6 +233,7 @@ class FormStore {
         dispatch: this.dispatch,
         store: this.store,
         fieldEntities: this.fieldEntities,
+        registerUpdate: this.registerUpdate,
       }
     }
   }
@@ -193,6 +243,7 @@ class FormStore {
       getFieldValue: this.getFieldValue,
       getFieldsValue: this.getFieldsValue,
       setFieldsValue: this.setFieldsValue,
+      setFieldValue: this.setFieldValue,
       resetFields: this.resetFields,
       validateFields: this.validateFields,
       submit: this.submit,
@@ -212,5 +263,5 @@ export const useForm = (form?: FormInstance): [FormInstance] => {
       formRef.current = formStore.getForm() as FormInstance
     }
   }
-  return [formRef.current]
+  return [formRef.current as FormInstance]
 }

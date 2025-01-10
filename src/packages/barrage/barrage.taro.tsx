@@ -1,14 +1,14 @@
 import React, {
   ForwardRefRenderFunction,
-  useState,
   useEffect,
   useRef,
   useImperativeHandle,
 } from 'react'
-import { createSelectorQuery } from '@tarojs/taro'
-
 import classNames from 'classnames'
+
+import { View } from '@tarojs/components'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
+import { getRectByTaro } from '@/utils/get-rect-by-taro'
 
 export interface BarrageProps extends BasicComponent {
   list: Array<string>
@@ -18,7 +18,6 @@ export interface BarrageProps extends BasicComponent {
   rows: number
   gapY: number
 }
-
 const defaultProps = {
   ...ComponentDefaults,
   list: [],
@@ -47,98 +46,131 @@ const InternalBarrage: ForwardRefRenderFunction<
     ...defaultProps,
     ...props,
   }
-  const [styleList, setStyleList] = useState<any[]>([])
-  const [baItemList, setBaItemList] = useState(list)
-  const barrageListSet = useRef<any>(list)
-
   const barrageBody = useRef<HTMLDivElement>(null)
   const barrageContainer = useRef<HTMLDivElement>(null)
-  const timeId = useRef(new Date().getTime())
+  const barrageCWidth = useRef(0)
   const timer = useRef(0)
+  const domTimer = useRef(0)
+  const index = useRef(0)
+  const times = useRef<number[]>([])
+  const historyIndex = useRef(-1)
 
-  const classes = classNames(
-    classPrefix,
-    {
-      [`${classPrefix}-body${timeId.current}`]: true,
-    },
-    className
-  )
+  const classes = classNames(classPrefix, className)
 
   useImperativeHandle(ref, () => ({
     add: (word: string) => {
-      barrageListSet.current = [...barrageListSet.current, word]
-      run()
+      const _index = index.current % list.length
+      if (!loop && index.current === list.length) {
+        list.splice(list.length, 0, word)
+      } else {
+        list.splice(_index, 0, word)
+      }
     },
   }))
 
+  const getNodeWidth = async (node: Element | null, type = 'width') => {
+    if (node) {
+      const refe = await getRectByTaro(node)
+      return Math.ceil(type === 'height' ? refe.height : refe.width)
+    }
+    return 0
+  }
+
+  const clearDomTimeout = () => {
+    if (domTimer.current) {
+      clearTimeout(domTimer.current)
+      domTimer.current = 0
+    }
+  }
+
   useEffect(() => {
-    barrageListSet.current = [...list]
-    run()
+    const init = async () => {
+      if (barrageBody.current) {
+        barrageCWidth.current = await getNodeWidth(barrageBody.current)
+        barrageBody.current?.style.setProperty(
+          '--move-distance',
+          `-${barrageCWidth.current}px`
+        )
+        index.current = 0
+        run()
+      }
+    }
+    domTimer.current = window.setTimeout(() => {
+      init()
+    }, 300)
     return () => {
-      clearInterval(timer.current)
+      clearDomTimeout()
     }
   }, [list])
 
   const run = () => {
-    setBaItemList(barrageListSet.current)
-    barrageListSet.current.forEach((item: any, index: number) => {
-      getNode(index)
+    clearTimeout(timer.current)
+    let intervalCache = interval
+    const _index = (loop ? index.current % list.length : index.current) % rows
+    const result = times.current[_index] - rows * interval
+    if (result > 0) {
+      intervalCache += result
+    }
+    timer.current = window.setTimeout(() => {
+      play()
+    }, intervalCache)
+  }
+
+  const setStyle = async (el: HTMLElement, currentIndex: number) => {
+    try {
+      if (el) {
+        const refe = await getRectByTaro(el)
+        const width = refe.width
+        const height = refe.height
+        el.classList.add('move')
+        const elScrollDuration = Math.round(
+          (width / barrageCWidth.current) * duration
+        )
+        times.current[currentIndex] = elScrollDuration
+        el.style.animationDuration = `${duration + elScrollDuration}ms`
+        el.style.top = `${currentIndex * (height + gapY) + 20}px`
+        el.style.width = `${width}px`
+      }
+    } catch (error) {
+      console.log('异常自动流转到下一个', error)
+      ;(barrageContainer.current as HTMLDivElement).removeChild(el)
+    }
+    el.addEventListener('animationend', () => {
+      ;(barrageContainer.current as HTMLDivElement).removeChild(el)
     })
   }
 
-  const getNode = (index: number) => {
-    const query = createSelectorQuery()
-    setTimeout(() => {
-      let width = 100
-      query
-        .select(`.${classPrefix}-body${timeId.current}`)
-        .boundingClientRect((rec: any) => {
-          width = rec.width || 300
-        })
-
-      query
-        .select(`.${classPrefix}-item${index}`)
-        .boundingClientRect((recs: any) => {
-          const height = recs.height
-          const nodeTop = `${(index % rows) * (height + gapY) + 20}px`
-          styleInfo(index, nodeTop, width)
-        })
-        .exec()
-    }, 500)
-  }
-
-  const styleInfo = (index: number, nodeTop: string, width: number) => {
-    const timeIndex = index - rows > 0 ? index - rows : 0
-    const list = styleList
-    const time = list[timeIndex] ? Number(list[timeIndex]['--time']) : 0
-    const obj = {
-      top: nodeTop,
-      '--time': `${interval * index + time}`,
-      animationDuration: `${duration}ms`,
-      animationIterationCount: `${loop ? 'infinite' : 1}`,
-      animationDelay: `${interval * index + time}ms`,
-      '--move-distance': `-${width}px`,
+  const play = () => {
+    if (!loop && index.current >= list.length) {
+      return
     }
-    list.push(obj)
-    setStyleList([...list])
+
+    const _index = loop ? index.current % list.length : index.current
+    const el = document.createElement(`View`)
+
+    let currentIndex = _index % rows
+    if (
+      currentIndex <= historyIndex.current ||
+      (historyIndex.current === 3 && currentIndex !== 0) ||
+      Math.abs(currentIndex - historyIndex.current) !== 1
+    ) {
+      currentIndex =
+        historyIndex.current + 1 >= rows ? 0 : historyIndex.current + 1
+    }
+    historyIndex.current = currentIndex
+
+    el.innerHTML = list[_index] as string
+    ;(barrageContainer.current as HTMLDivElement).appendChild(el)
+    el.classList.add('barrage-item')
+    requestAnimationFrame(() => setStyle(el, currentIndex))
+    index.current++
+    run()
   }
 
   return (
-    <div className={classes} ref={barrageBody} {...restProps}>
-      <div ref={barrageContainer} className="bContainer">
-        {baItemList.map((item: any, index: number) => {
-          return (
-            <div
-              className={`barrage-item ${classPrefix}-item${index} move`}
-              style={styleList[index]}
-              key={index}
-            >
-              {item.length > 8 ? `${item.substr(0, 8)}...` : item}
-            </div>
-          )
-        })}
-      </div>
-    </div>
+    <View className={classes} ref={barrageBody} {...restProps}>
+      <View ref={barrageContainer} className="bContainer" />
+    </View>
   )
 }
 
@@ -146,5 +178,4 @@ export const Barrage = React.forwardRef<unknown, Partial<BarrageProps>>(
   InternalBarrage
 )
 
-Barrage.defaultProps = defaultProps
 Barrage.displayName = 'NutBarrage'

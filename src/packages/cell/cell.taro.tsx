@@ -9,7 +9,8 @@ export interface CellProps extends BasicComponent {
   description: ReactNode
   extra: ReactNode
   radius: string | number
-  align: string
+  align: 'flex-start' | 'center' | 'flex-end'
+  clickable: boolean
   onClick: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
 }
 
@@ -20,6 +21,7 @@ const defaultProps = {
   extra: null,
   radius: '6px',
   align: 'flex-start',
+  clickable: false,
   onClick: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {},
 } as CellProps
 
@@ -39,6 +41,7 @@ export const Cell: FunctionComponent<
     align,
     className,
     style,
+    clickable,
     ...rest
   } = {
     ...defaultProps,
@@ -63,7 +66,7 @@ export const Cell: FunctionComponent<
         }
   return (
     <div
-      className={classNames(classPrefix, className)}
+      className={`${classNames(classPrefix, className, clickable ? `${classPrefix}-clickable` : '')}`}
       onClick={(event) => handleClick(event)}
       style={baseStyle}
       {...rest}
@@ -97,6 +100,5 @@ export const Cell: FunctionComponent<
   )
 }
 
-Cell.defaultProps = defaultProps
 Cell.displayName = 'NutCell'
 Cell.Group = CellGroup

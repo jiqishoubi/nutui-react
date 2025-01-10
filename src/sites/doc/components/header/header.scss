@@ -156,15 +156,14 @@
 }
 // 颜色
 .doc-header {
-  // 红色
   &-red {
     background-image: $theme-red-header-bg;
     color: $theme-red-word;
     .header {
       &-logo {
         .logo-link {
-          background: url('../../assets/images/logo-header-white.png') no-repeat
-            center/100%;
+          background: url('../../../assets/images/logo-header-white.png')
+            no-repeat center/100%;
         }
         .logo-border {
           background: $theme-red-border;
@@ -234,7 +233,6 @@
       }
     }
   }
-  // 白色
   &-white {
     background: $white;
     color: $theme-white-word;
@@ -313,7 +311,6 @@
       }
     }
   }
-  // 黑色
   &-black {
     background: $black;
     color: $theme-black-word;

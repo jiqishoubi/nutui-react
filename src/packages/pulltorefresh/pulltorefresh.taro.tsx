@@ -1,18 +1,20 @@
 import React, { FunctionComponent, ReactNode, useRef, useState } from 'react'
+import classNames from 'classnames'
 import { ITouchEvent, View } from '@tarojs/components'
 import { Loading, More } from '@nutui/icons-react-taro'
 import Taro from '@tarojs/taro'
 import { useConfig } from '@/packages/configprovider/index.taro'
 import { useTouch } from '@/utils/use-touch'
 import { rubberbandIfOutOfBounds } from '@/utils/rubberband'
-
 import { sleep } from '@/utils/sleep'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
+import { PullToRefreshType } from './types'
 
 export type PullStatus = 'pulling' | 'canRelease' | 'refreshing' | 'complete'
 
 export interface PullToRefreshProps extends BasicComponent {
   onRefresh: () => Promise<any>
+  type: PullToRefreshType
   pullingText: ReactNode
   canReleaseText: ReactNode
   refreshingText: ReactNode
@@ -28,6 +30,7 @@ export interface PullToRefreshProps extends BasicComponent {
 
 const defaultProps = {
   ...ComponentDefaults,
+  type: 'default',
   pullingText: '',
   canReleaseText: '',
   refreshingText: '',
@@ -56,6 +59,11 @@ export const PullToRefresh: FunctionComponent<Partial<PullToRefreshProps>> = (
     },
   }
 
+  const classes = classNames(
+    classPrefix,
+    props.className,
+    `${classPrefix}-${props.type}`
+  )
   const headHeight = props.headHeight
   const threshold = props.threshold
   const pullingRef = useRef(false)
@@ -87,10 +95,11 @@ export const PullToRefresh: FunctionComponent<Partial<PullToRefreshProps>> = (
     return ''
   }
   const handleTouchStart: any = (e: ITouchEvent) => {
+    if (props.disabled) return
     touch.start(e as any)
   }
   const handleTouchMove: any = (e: ITouchEvent) => {
-    if (props.scrollTop > 0) {
+    if (props.scrollTop > 0 || props.disabled) {
       return
     }
     if (status === 'refreshing' || status === 'complete') return
@@ -131,6 +140,7 @@ export const PullToRefresh: FunctionComponent<Partial<PullToRefreshProps>> = (
     setStatus('pulling')
   }
   const handleTouchEnd: any = () => {
+    if (props.disabled) return
     pullingRef.current = false
     if (status === 'canRelease') {
       doRefresh()
@@ -152,7 +162,7 @@ export const PullToRefresh: FunctionComponent<Partial<PullToRefreshProps>> = (
   }
   return (
     <View
-      className={`${classPrefix} ${props.className}`}
+      className={classes}
       style={props.style}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -172,5 +182,4 @@ export const PullToRefresh: FunctionComponent<Partial<PullToRefreshProps>> = (
   )
 }
 
-PullToRefresh.defaultProps = defaultProps
 PullToRefresh.displayName = 'NutPullToRefresh'

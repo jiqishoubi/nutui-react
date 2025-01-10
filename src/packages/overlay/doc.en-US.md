@@ -1,13 +1,11 @@
 # Overlay
 
-## Intro
-
 Create a mask layer that is typically used to prevent users from doing other things
 
-## Install
+## Import
 
 ```tsx
-import { OverLay } from '@nutui/nutui-react';
+import { Overlay } from '@nutui/nutui-react'
 ```
 
 ## Demo
@@ -16,73 +14,15 @@ import { OverLay } from '@nutui/nutui-react';
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        Displays the mask layer
-      </Button>
-      <Overlay
-        visible={visible}
-        onClick={onClose}
-        style={{'--nutui-overlay-zIndex': 2000,}}
-        afterShow={() => {
-          console.log('afterShow')
-        }}
-      />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
 :::
 
-### Mask style
+### Custom mask style
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        Mask style
-      </Button>
-      <Overlay
-        visible={visible}
-        onClick={onClose}
-        style={{
-          backgroundColor: 'rgba(0, 0, 0, .2)',
-          '--nutui-overlay-zIndex': 2000,
-        }}
-      />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
 
 :::
 
@@ -90,40 +30,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        Set animation time
-      </Button>
-      <Overlay
-        visible={visible}
-        onClick={onClose}
-        style={{ '--nutui-overlay-animation-duration': '2.5s' }}
-        duration={2500}
-        afterShow={() => {
-          console.log('afterShow')
-        }}
-        afterClose={() => {
-          console.log('afterClose')
-        }}
-      />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
 
 :::
 
@@ -131,29 +38,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        Do not lock background scrolling
-      </Button>
-      <Overlay visible={visible} onClick={onClose} lockScroll={false} />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo4.tsx'></CodeBlock>
 
 :::
 
@@ -161,49 +46,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const WrapperStyle = {
-  display: 'flex',
-  height: '100%',
-  alignItems: 'center',
-  justifyContent: 'center'
-}
-const ContentStyle = {
-  display: 'flex',
-  width: '150px',
-  height: '150px',
-  background: '#fff',
-  borderRadius: '8px',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: 'red'
-}
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="success" onClick={handleToggleShow}>
-        Nested content
-      </Button>
-      <Overlay visible={visible} onClick={onClose}>
-        <div className="wrapper" style={WrapperStyle}>
-          <div className="content" style={ContentStyle}>Here is the main text</div>
-        </div>
-      </Overlay>
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo5.tsx'></CodeBlock>
 
 :::
 
@@ -211,33 +54,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Button, Overlay } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const handleToggleShow = () => {
-    setVisible(true)
-  }
-  const onClose = () => {
-    setVisible(false)
-  }
-  return (
-    <>
-      <Button type="primary" onClick={handleToggleShow}>
-        Click the mask not to close
-      </Button>
-      <Overlay visible={visible} closeOnOverlayClick={false}>
-        <div className="wrapper">
-          <div className="content" onClick={onClose}>here is the text</div>
-        </div>
-      </Overlay>
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo6.tsx'></CodeBlock>
 
 :::
 
@@ -249,7 +66,8 @@ export default App;
 | --- | --- | --- | --- |
 | visible | Whether the current component is displayed | `boolean` | `false` |
 | duration | Animation duration, in ms | `number` | `300` |
-| lockScroll | Whether the background is locked | `boolean` | `true` |
+| lockScroll | Whether the background is locked ,strict is used to support iOS12 | `boolean\|strict` | `true` |
+| zIndex | Set component page level | `number` | `1000` |
 | closeOnOverlayClick | Tap Mask off | `boolean` | `true` |
 | onClick | Triggered when the button is clicked | `event: Event` | `-` |
 | afterClose | Triggered after complete shutdown | `() => void` | `-` |
@@ -267,4 +85,4 @@ The component provides the following CSS variables, which can be used to customi
 | \--nutui-overlay-zIndex | z-index | `1000` |
 | \--nutui-overlay-content-bg-color | Mask layer nested content background color | `$white` |
 | \--nutui-overlay-content-color | Mask layer nested content font color | `$color-title` |
-| \--nutui-overlay-animation-duration| Mask layer nested content animation duration | `0.3s` |
+| \--nutui-overlay-animation-duration | Mask layer nested content animation duration | `0.3s` |

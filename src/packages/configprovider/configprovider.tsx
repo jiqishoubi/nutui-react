@@ -7,11 +7,15 @@ import { BasicComponent } from '@/utils/typings'
 import { BaseLang } from '@/locales/base'
 import zhCN from '@/locales/zh-CN'
 import type { NutCSSVariables } from './types'
+import { inBrowser } from '@/utils/raf'
 
 export interface ConfigProviderProps extends BasicComponent {
   locale: BaseLang
+  direction?: ConfigProviderDirection
   theme?: Record<string | NutCSSVariables, string>
 }
+
+export type ConfigProviderDirection = 'ltr' | 'rtl' | undefined
 
 const classPrefix = 'nut-configprovider'
 
@@ -31,7 +35,6 @@ export const getDefaultConfig = () => {
   return defaultConfigRef.current
 }
 
-// 创建一个 Context 对象
 const ConfigContext = createContext<ConfigProviderProps | null>(null)
 
 export const useConfig = () => {
@@ -46,19 +49,28 @@ function convertThemeVarsToCSSVars(themeVars: Record<string, string | number>) {
   return cssVars
 }
 
+export const useRtl = () => {
+  const { direction } = useConfig()
+  if (direction) {
+    return direction === 'rtl'
+  }
+  return inBrowser && document.dir === 'rtl'
+}
+
 export const ConfigProvider: FunctionComponent<
   Partial<ConfigProviderProps & BasicComponent>
 > = (props) => {
-  const { style, className, children, ...config } = props
+  const { style, className, children, direction, ...config } = props
 
   const mergedConfig = useMemo(
     () => {
       return {
         ...getDefaultConfig(),
         ...config,
+        direction,
       }
     },
-    [config],
+    [config, direction],
     (prev, next) =>
       prev.some((prevTheme, index) => {
         const nextTheme = next[index]
@@ -78,7 +90,9 @@ export const ConfigProvider: FunctionComponent<
         style={{
           ...cssVarStyle,
           ...style,
+          direction,
         }}
+        dir={direction}
       >
         {children}
       </div>

@@ -1,42 +1,20 @@
 # Grid 宫格
 
-## 介绍
-
 用于分隔成等宽区块进行页面导航。
 
-## 安装
+## 引入
 
 ```tsx
 import { Grid } from '@nutui/nutui-react-taro'
 ```
 
-## 代码演示
+## 示例代码
 
 ### 基础用法
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid } from '@nutui/nutui-react-taro'
-import { Image } from '@nutui/icons-react-taro'
-
-const App = () => {
-  return (
-    <Grid>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+<CodeBlock src='taro/demo1.tsx'></CodeBlock>
 
 :::
 
@@ -44,25 +22,7 @@ export default App
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid } from '@nutui/nutui-react-taro'
-import { Image } from '@nutui/icons-react-taro'
-
-const App = () => {
-  return (
-    <Grid columns={3}>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+<CodeBlock src='taro/demo2.tsx'></CodeBlock>
 
 :::
 
@@ -70,22 +30,7 @@ export default App
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid } from '@nutui/nutui-react-taro'
-import { Image } from '@nutui/icons-react-taro'
-
-const App = () => {
-  return (
-    <Grid columns={3} square>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+<CodeBlock src='taro/demo3.tsx'></CodeBlock>
 
 :::
 
@@ -93,27 +38,7 @@ export default App
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid } from '@nutui/nutui-react-taro'
-import { Image } from '@nutui/icons-react-taro'
-
-const App = () => {
-  return (
-    <Grid gap={3}>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+<CodeBlock src='taro/demo4.tsx'></CodeBlock>
 
 :::
 
@@ -121,23 +46,7 @@ export default App
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid } from '@nutui/nutui-react-taro'
-import { Image } from '@nutui/icons-react-taro'
-
-const App = () => {
-  return (
-    <Grid reverse>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+<CodeBlock src='taro/demo5.tsx'></CodeBlock>
 
 :::
 
@@ -145,23 +54,7 @@ export default App
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid } from '@nutui/nutui-react-taro'
-import { Image } from '@nutui/icons-react-taro'
-
-const App = () => {
-  return (
-    <Grid direction="horizontal">
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+<CodeBlock src='taro/demo6.tsx'></CodeBlock>
 
 :::
 
@@ -169,23 +62,7 @@ export default App
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid } from '@nutui/nutui-react-taro'
-import { Image } from '@nutui/icons-react-taro'
-
-const App = () => {
-  return (
-    <Grid reverse direction="horizontal">
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-      <Grid.Item text="文字"><Image /></Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+<CodeBlock src='taro/demo7.tsx'></CodeBlock>
 
 :::
 
@@ -193,28 +70,7 @@ export default App
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid } from '@nutui/nutui-react-taro'
-import { Image } from '@nutui/icons-react-taro'
-
-const App = () => {
-  return (
-    <Grid columns="3">
-      <Grid.Item text="文字">
-        <Image size={10}  />
-      </Grid.Item>
-      <Grid.Item text="文字">
-        <Image color="red" />
-      </Grid.Item>
-      <Grid.Item text="文字">
-        <Image size={20}  color="#478EF2" />
-      </Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+<CodeBlock src='taro/demo8.tsx'></CodeBlock>
 
 :::
 
@@ -222,40 +78,15 @@ export default App
 
 :::demo
 
-```tsx
-import React from 'react'
-import { Grid, Avatar } from '@nutui/nutui-react-taro'
-import { Image as ImageIcon} from '@nutui/icons-react-taro'
+<CodeBlock src='taro/demo9.tsx'></CodeBlock>
 
-const App = () => {
-  return (
-    <Grid>
-      <Grid.Item text={<span>More</span>}><ImageIcon /></Grid.Item>
-      <Grid.Item>
-        <Avatar
-          className="demo-avatar"
-          icon={<ImageIcon color="#fff"/>}
-          background="#FA2C19"
-        />
-      </Grid.Item>
-      <Grid.Item>
-      <Avatar
-        size="large"
-        icon={
-          <img
-            width="100%"
-            height="100%"
-            alt="头像"
-            src="https://img12.360buyimg.com/imagetools/jfs/t1/143702/31/16654/116794/5fc6f541Edebf8a57/4138097748889987.png"
-          />
-        }
-      />
-      </Grid.Item>
-    </Grid>
-  )
-}
-export default App
-```
+:::
+
+### 点击子项事件
+
+:::demo
+
+<CodeBlock src='taro/demo10.tsx'></CodeBlock>
 
 :::
 

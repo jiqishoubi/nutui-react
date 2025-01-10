@@ -1,12 +1,10 @@
 # Dialog
 
-## Intro
-
 Modular dialog box, displayed in the floating layer, guides users to perform related operations, often used in message prompts, message confirmation, or complete specific interaction operations on the current page。
 
 The pop -up box components support the function call and component call.
 
-## Install
+## Import
 
 ```tsx
 import { Dialog } from '@nutui/nutui-react'
@@ -14,150 +12,69 @@ import { Dialog } from '@nutui/nutui-react'
 
 ## Demo
 
-### Functional call
+### Function use
 
 :::demo
 
-```tsx
-import React from "react";
-import { Cell,Dialog } from '@nutui/nutui-react';
-
-const App = () => {
-  return (
-    <>
-      <Cell title="Basic bullet" onClick={() => {
-        Dialog.alert({
-            className: 'dialog-func',
-            title: 'Basic bullet',
-            content: 'Support function calls and module call.',
-        });
-        }} />
-      <Cell title="Non-title bullet box, and lock scroll" onClick={() => {
-            Dialog.alert({
-            content: 'Non-title bullet box, and lock scroll',
-            confirmText: 'Confirm',
-            cancelText: 'Cancel',
-            lockScroll: false
-        });
-        }} />
-      <Cell title="Prompt bomb frame" onClick={() => {
-        Dialog.alert({
-            title: 'Kind tips',
-            content: 'Support function calls and module call.',
-            hideCancelButton: true,
-            confirmText: 'Confirm'
-        });
-        }} />
-      <Cell title="The bottom button is called vertically" onClick={() => {
-        Dialog.alert({
-            title: 'Kind tips',
-            content: 'Support function calls and module call.',
-            footerDirection: 'vertical',
-            confirmText: 'Confirm',
-            cancelText: 'Cancel',
-        });
-        }} />
-        <Cell title="after opened the dialog for 3 seconds, call close method" onClick={() => {
-          const dialog = Dialog.confirm({
-            content: 'Support function calls and module call.',
-            confirmText: 'Confirm',
-            cancelText: 'Cancel',
-          });
-          setTimeout(() => {
-            dialog.close()
-          }, 3000);
-        }} 
-      />
-      <Cell title="after opened the dialog for 3 seconds, update the content of the dialog" onClick={() => {
-          const dialog = Dialog.confirm({
-            content: 'Support function calls and module call.',
-          });
-          setTimeout(() => {
-            dialog.update({
-              content: 'Support function calls and module call. update',
-            })
-          }, 3000);
-        }} 
-      />
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
 :::
 
-### Module call
+## Labeled use
+
+### Basic use
 
 :::demo
 
-```tsx
-import React, {useState} from "react";
-import { Cell,Dialog,Image } from '@nutui/nutui-react';
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
 
-const App = () => {
-  const [visible1, setVisible1] = useState(false);
-  const [visible2, setVisible2] = useState(false);
-  const [visible3, setVisible3] = useState(false);
-  return (
-    <>
-      <Cell title="Basic bullet" onClick={() => setVisible1(true)} />
-      <Dialog 
-          title="Module call"
-          visible={visible1}
-          onConfirm={() => setVisible1(false)}
-          onCancel={() => setVisible1(false)}
-      >
-          If you need to embed the component or other custom content in the pop -up window, you can use the Module Call method.
-      </Dialog>
-      <Cell title="The bottom button is called vertically" onClick={() => setVisible2(true)} />
-      <Dialog 
-          title="Module call"
-          visible={visible2}
-          footerDirection='vertical'
-          onConfirm={() => setVisible2(false)}
-          onCancel={() => setVisible2(false)}
-      >
-          If you need to embed the component or other custom content in the pop -up window, you can use the Module Call method.
-      </Dialog>
-      <Cell title="Stop it when click cancel button" onClick={() => setVisible3(true)} />
-      <Dialog 
-        title="Stop it when click cancel button"
-        visible={visible3}
-        closeOnOverlayClick={false}
-        beforeCancel={() => {
-          console.log('stop close')
-          return false
-        }}
-        onClose={() => {
-          setVisible3(false)
-        }}
-      >
-        If you need to embed the component or other custom content in the pop -up window, you can use the Module Call method.
-      </Dialog>
-      <Cell
-        title="Image in header"
-        onClick={() => {
-          setVisible7(true)
-        }}
-      />
-      <Dialog
-        className="test-dialog"
-        title="Image in header"
-        visible={visible7}
-        header={
-          <Image src="https://img13.360buyimg.com/imagetools/jfs/t1/219330/27/30033/11784/6544af3fF5c0fd98f/64c41bb05ef09189.png" />
-        }
-        onConfirm={() => setVisible7(false)}
-        onCancel={() => setVisible7(false)}
-      >
-        If you need to embed the component or other custom content in the pop -up window, you can use the Module Call method.
-      </Dialog>
-    </>
-  )
-}
-export default App;
-```
+:::
+
+### Customize footer area
+
+:::demo
+
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
+
+:::
+
+### Intercept when cancel is clicked
+
+:::demo
+
+<CodeBlock src='h5/demo4.tsx'></CodeBlock>
+
+:::
+
+### Confirm button loading effect
+
+:::demo
+
+<CodeBlock src='h5/demo5.tsx'></CodeBlock>
+
+:::
+
+### With close button
+
+:::demo
+
+<CodeBlock src='h5/demo6.tsx'></CodeBlock>
+
+:::
+
+### Custom content area
+
+:::demo
+
+<CodeBlock src='h5/demo7.tsx'></CodeBlock>
+
+:::
+
+### Top with picture
+
+:::demo
+
+<CodeBlock src='h5/demo8.tsx'></CodeBlock>
 
 :::
 
@@ -178,6 +95,8 @@ export default App;
 | hideConfirmButton | Whether to hide the OK button | `boolean` | `false` |
 | hideCancelButton | Whether to hide the cancel button | `boolean` | `false` |
 | disableConfirmButton | Disable the OK button | `boolean` | `false` |
+| closeIcon | Close button | `boolean` \| `ReactNode` | `false` |
+| closeIconPosition | Close button position | `top-left` \| `top-right` \| `bottom` | `top-right` |
 | closeOnOverlayClick | Click on whether to close the dialog box | `boolean` | `true` |
 | footerDirection | Use horizontal and vertical direction value selection horizontal、vertical | `string` | `horizontal` |
 | lockScroll | Whether the background is locked | `boolean` | `true` |
@@ -196,25 +115,25 @@ import React from 'react'
 import { Dialog, Input, Button } from '@nutui/nutui-react'
 
 export default function App() {
-  const [captcha, setCaptcha] = useState<string>("");
+  const [captcha, setCaptcha] = useState<string>('')
   const showCaptcha = () => {
     return Dialog.confirm({
       content: (
-          <Input
-            placeholder="请输入验证码"
-            value={captcha} // App 中 captcha 的更新是不会传递到 Dialog 中的
-            onChange={(v) => {
-              setCaptcha(v)
-            }}
-          />
-      )
-    });
-  };
+        <Input
+          placeholder="Please enter the verification code"
+          value={captcha} // Updates to captcha in the App are not passed to the Dialog
+          onChange={(v) => {
+            setCaptcha(v)
+          }}
+        />
+      ),
+    })
+  }
   return (
     <div>
       <Button onClick={showCaptcha}>Show</Button>
     </div>
-  );
+  )
 }
 ```
 
@@ -242,3 +161,9 @@ The component provides the following CSS variables, which can be used to customi
 | \--nutui-dialog-footer-cancel-margin-right | dialog footer cancel button's margin right | `12px` |
 | \--nutui-dialog-footer-ok-max-width | dialog footer confirm button's max width | `128px` |
 | \--nutui-dialog-vertical-footer-ok-margin-top | dialog vertical footer confirm button margin top | `5px` |
+| \--nutui-dialog-close-width | dialog close the width of the button | `18px` |
+| \--nutui-dialog-close-height | dialog close the coloe of the button | `18px` |
+| \--nutui-dialog-close-color | dialog close button color | `#8c8c8c` |
+| \--nutui-dialog-close-top | dialog Closes the top value of the button | `16px` |
+| \--nutui-dialog-close-left | dialog Closes the left value of the button | `16px` |
+| \--nutui-dialog-close-right | dialog Closes the right value of the button | `16px` |

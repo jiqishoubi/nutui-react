@@ -25,10 +25,18 @@ const config = {
   plugins: ['@tarojs/plugin-html'],
   compiler: 'webpack5',
   alias: {
+    '@nutui/nutui-react-taro/dist/locales/en-US.ts': path.resolve(
+      __dirname,
+      '../../../src/locales/en-US.ts',
+    ),
     '@/packages': path.resolve(__dirname, '../../../src/packages'),
     '@/sites': path.resolve(__dirname, '../../../src/sites'),
     '@/locales': path.resolve(__dirname, '../../../src/locales'),
     '@/utils': path.resolve(__dirname, '../../../src/utils'),
+    '@nutui/nutui-react-taro': path.resolve(
+      __dirname,
+      '../../../src/packages/nutui.react.taro.ts',
+    ),
   },
   sass: {
     resource: [
@@ -67,6 +75,12 @@ const config = {
   h5: {
     publicPath: '/',
     staticDirectory: 'static',
+    compile: {
+      include: [
+        path.resolve(__dirname, '..', 'node_modules/@tarojs/components'),
+        path.resolve(__dirname, '../../..', 'src'),
+      ],
+    },
     postcss: {
       pxtransform: {
         enable: true,
@@ -96,11 +110,16 @@ const config = {
       // 自定义 Webpack 配置
       devServer: {},
     },
+    output: {
+      environment: {
+        asyncFunction: true,
+      },
+    },
   },
   isWatch: true,
 }
 
-module.exports = function (merge) {
+module.exports = function(merge) {
   if (process.env.NODE_ENV === 'development') {
     return merge({}, config, require('./dev'))
   }

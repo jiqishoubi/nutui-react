@@ -18,7 +18,7 @@ export type ButtonType =
   | 'success'
   | 'warning'
   | 'danger'
-export type ButtonSize = 'large' | 'normal' | 'small' | 'mini'
+export type ButtonSize = 'xlarge' | 'large' | 'normal' | 'small' | 'mini'
 export type ButtonShape = 'square' | 'round'
 export type ButtonFill = 'solid' | 'outline' | 'dashed' | 'none'
 
@@ -35,6 +35,7 @@ export interface ButtonProps
   disabled: boolean
   icon: React.ReactNode
   rightIcon: React.ReactNode
+  nativeType: 'submit' | 'reset' | 'button'
   onClick: (e: MouseEvent<HTMLButtonElement>) => void
 }
 
@@ -70,6 +71,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Partial<ButtonProps>>(
       children,
       className,
       style,
+      nativeType,
       onClick,
       ...rest
     } = {
@@ -78,23 +80,20 @@ export const Button = React.forwardRef<HTMLButtonElement, Partial<ButtonProps>>(
     }
     const getStyle = useCallback(() => {
       const style: CSSProperties = {}
-      if (props.color) {
-        if (
-          props.fill &&
-          (props.fill === 'outline' || props.fill === 'dashed')
-        ) {
+      if (color) {
+        if (props.fill === 'outline' || props.fill === 'dashed') {
           style.color = color
-          style.background = '#fff'
           if (!color?.includes('gradient')) {
             style.borderColor = color
           }
         } else {
           style.color = '#fff'
           style.background = color
+          style.borderColor = 'transparent'
         }
       }
       return style
-    }, [color])
+    }, [color, props.fill])
 
     const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
       if (!loading && !disabled && onClick) {
@@ -110,8 +109,8 @@ export const Button = React.forwardRef<HTMLButtonElement, Partial<ButtonProps>>(
       // eslint-disable-next-line react/button-has-type
       <button
         {...rest}
-        // type={Taro.getEnv() === 'WEB''reset'}
         ref={ref}
+        type={nativeType}
         className={classNames(
           prefixCls,
           `${prefixCls}-${type}`,
@@ -121,7 +120,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Partial<ButtonProps>>(
             [`${prefixCls}-${size}`]: size,
             [`${prefixCls}-${shape}`]: shape,
             [`${prefixCls}-block`]: block,
-            [`${prefixCls}-disabled`]: disabled,
+            [`${prefixCls}-disabled`]: disabled || loading,
             [`${prefixCls}-loading`]: loading,
           },
           className

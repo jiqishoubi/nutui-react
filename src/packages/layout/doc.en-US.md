@@ -1,10 +1,8 @@
 # Layout
 
-## Intro
-
 for quick layout
 
-## Install
+## Import
 
 ```tsx
 import { Row, Col } from '@nutui/nutui-react'
@@ -16,173 +14,23 @@ import { Row, Col } from '@nutui/nutui-react'
 
 :::demo
 
-```tsx
-import React from "react";
-import { Row, Col } from '@nutui/nutui-react';
-
-const App = () => {
-  return (
-    <>
-        <Row>
-            <Col span="24">
-                <div className="flex-content">span:24</div>
-            </Col>
-        </Row>
-        <Row>
-            <Col span="12">
-                <div className="flex-content">span:12</div>
-            </Col>
-            <Col span="12">
-                <div className="flex-content flex-content-light">span:12</div>
-            </Col> 
-        </Row>
-        <Row>
-            <Col span="8">
-                <div className="flex-content">span:8</div>
-            </Col>
-            <Col span="8">
-                <div className="flex-content flex-content-light">span:8</div>
-            </Col> 
-            <Col span="8">
-                <div className="flex-content flex-content-light">span:8</div>
-            </Col> 
-        </Row>
-        <Row>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-        </Row>
-    </>
-  )
-};
-export default App;
-```
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
 :::
 
+### Column interval
+
 :::demo
 
-### column interval
-
-```tsx
-import React from "react";
-import { Layout, Row, Col } from '@nutui/nutui-react';
-
-const App = () => {
-  return (
-    <Row gutter="10">
-        <Col span="8">
-            <div className="flex-content">span:8</div>
-        </Col>
-        <Col span="8">
-            <div className="flex-content flex-content-light">span:8</div>
-        </Col> 
-        <Col span="8">
-            <div className="flex-content flex-content-light">span:8</div>
-        </Col> 
-    </Row>
-  )
-};
-export default App;
-```
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
 
 :::
-
-:::demo
 
 ### Flex layout
 
-```tsx
-import React from "react";
-import { Layout, Row, Col } from '@nutui/nutui-react';
+:::demo
 
-const App = () => {
-  return (
-    <>
-        <Row type="flex" wrap="nowrap">
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-        </Row>
-        <Row type="flex" justify="center">
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-        </Row>
-        <Row type="flex" justify="end">
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-        </Row>
-        <Row type="flex" justify="space-between">
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-        </Row>
-        <Row type="flex" justify="space-around">
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-            <Col span="6">
-                <div className="flex-content">span:6</div>
-            </Col>
-        </Row>
-    </>
-  )
-}
-export default App;
-```
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
 
 :::
 

@@ -1,13 +1,11 @@
 # NumberKeyboard
 
-## Intro
-
 Virtual numeric keypad, used for scenarios where payment passwords are entered.
 
-## Install
+## Import
 
 ```tsx
-import { NumberKeyboard } from '@nutui/nutui-react';
+import { NumberKeyboard } from '@nutui/nutui-react'
 ```
 
 ## Demo
@@ -16,36 +14,7 @@ import { NumberKeyboard } from '@nutui/nutui-react';
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Cell, NumberKeyboard, Toast } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const onChange = (number: string) => {
-    Toast.show(`enter:${number}`)
-  }
-  const onDelete = () => {
-    Toast.show('delete')
-  }
-  return (
-    <>
-      <Cell
-        title="Default Keyboard"
-        onClick={() => setVisible(true)}
-      />
-      <NumberKeyboard
-        visible={visible}
-        onChange={onChange}
-        onDelete={onDelete}
-        onClose={() => setVisible(false)}
-      />
-    </>
-  )
-}
-export default App;
-
-```
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
 :::
 
@@ -53,38 +22,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Cell, NumberKeyboard, Toast } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const onChange = (number: string) => {
-    Toast.show(`enter:${number}`)
-  }
-  const onDelete = () => {
-    Toast.show('delete')
-  }
-  return (
-    <>
-      <Cell
-        title="Keyboard With Sidebar"
-        onClick={() => setVisible(true)}
-      />
-      <NumberKeyboard
-        visible={visible}
-        type="rightColumn"
-        custom={['.', 'x']}
-        onChange={onChange}
-        onDelete={onDelete}
-        onClose={() => setVisible(false)}
-      />
-    </>
-  )
-}
-export default App;
-
-```
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
 
 :::
 
@@ -92,76 +30,17 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Cell, NumberKeyboard, Toast } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const onChange = (number: string) => {
-    Toast.show(`enter:${number}`)
-  }
-  const onDelete = () => {
-    Toast.show('delete')
-  }
-  return (
-    <>
-      <Cell
-        title=" Random Key Order"
-        onClick={() => setVisible(true)}
-      />
-      <NumberKeyboard
-        visible={visible}
-        random
-        onChange={onChange}
-        onDelete={onDelete}
-        onClose={() => setVisible(false)}
-      />
-    </>
-  )
-}
-export default App;
-
-```
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
 
 :::
 
 ### Show Keyboard With Title
 
+You can use `rightActions` when you want to set the right actions on the title bar.The vuale of it is `Done`.
+
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Cell, NumberKeyboard, Toast } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const onChange = (number: string) => {
-    Toast.show(`enter:${number}`)
-  }
-  const onDelete = () => {
-    Toast.show('delete')
-  }
-  return (
-    <>
-      <Cell
-        title="Show Keyboard With Title"
-        onClick={() => setVisible(true)}
-      />
-      <NumberKeyboard
-        visible={visible}
-        title="title"
-        custom={['.']}
-        onChange={onChange}
-        onDelete={onDelete}
-        onClose={() => setVisible(false)}
-      />
-    </>
-  )
-}
-export default App;
-
-```
+<CodeBlock src='h5/demo4.tsx'></CodeBlock>
 
 :::
 
@@ -169,37 +48,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Cell, NumberKeyboard, Toast } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const onChange = (number: string) => {
-    Toast.show(`enter:${number}`)
-  }
-  const onDelete = () => {
-    Toast.show('delete')
-  }
-  return (
-    <>
-      <Cell
-        title="Show IdNumber Keyboard"
-        onClick={() => setVisible(true)}
-      />
-      <NumberKeyboard
-        visible={visible}
-        custom={['X']}
-        onChange={onChange}
-        onDelete={onDelete}
-        onClose={() => setVisible(false)}
-      />
-    </>
-  )
-}
-export default App;
-
-```
+<CodeBlock src='h5/demo5.tsx'></CodeBlock>
 
 :::
 
@@ -207,41 +56,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React, { useState } from "react";
-import { Cell, NumberKeyboard, Toast } from '@nutui/nutui-react';
-
-const App = () => {
-  const [visible, setVisible] = useState(false)
-  const onChange = (number: string) => {
-    Toast.show(`enter:${number}`)
-  }
-  const onDelete = () => {
-    Toast.show('delete')
-  }
-  return (
-    <>
-      <Cell
-        title="Show IdNumber Keyboard"
-        onClick={() => setVisible(true)}
-      />
-      <NumberKeyboard
-        visible={visible}
-        onChange={onChange}
-        onDelete={onDelete}
-        onClose={() => setVisible(false)}
-        duration={1}
-        overlayClassName="number-keyboard-overlay"
-        onOpen={() => {
-          Toast.show('onOpen')
-        }}
-      />
-    </>
-  )
-}
-export default App;
-
-```
+<CodeBlock src='h5/demo6.tsx'></CodeBlock>
 
 :::
 
@@ -253,10 +68,11 @@ export default App;
 | --- | --- | --- | --- |
 | visible | Whether to show keyboard | `boolean` | `false` |
 | title | Keyboard title | `ReactNode` | `-` |
+| rightActions | Right actions at title bar | `ReactNode` | `-` |
 | type | Keyboard type, default/rightColumn | `'default' \| 'rightColumn'` | `default` |
 | random | Whether to shuffle the order of keys | `boolean` | `false` |
 | custom | Content of bottom left key, Array form supports adding up to two | `string[]` | `-` |
-| confirmText | Custom done button text,Such as "pay", "next", "submit" | `string` | `done` |
+| confirmText | Custom done button text, Such as "pay", "next", "submit", used by `rightColumn` | `string` | `done` |
 | onChange | Emitted when a key is pressed | `(value: string) => void` | `-` |
 | onDelete | Emitted when the delete key is pressed | `-` | `-` |
 | onClose | Emitted when the close button or non-keyboard area is clicked is clicked | `-` | `-` |

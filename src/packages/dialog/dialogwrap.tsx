@@ -5,6 +5,7 @@ import { Content } from './content'
 import { OverlayProps, defaultOverlayProps } from '@/packages/overlay/overlay'
 import { ComponentDefaults } from '@/utils/typings'
 import Overlay from '@/packages/overlay'
+import { mergeProps } from '@/utils/merge-props'
 
 interface DialogWrapProps extends OverlayProps {
   visible: boolean
@@ -12,6 +13,7 @@ interface DialogWrapProps extends OverlayProps {
   overlayStyle: React.CSSProperties
   overlayClassName: string
   footer: React.ReactNode
+  close: React.ReactNode
   onCancel: () => void
   onClose: () => void
   onOverlayClick: (e: MouseEvent) => boolean | void
@@ -42,7 +44,7 @@ export const DialogWrap: FunctionComponent<
     onClose,
     onCancel,
     onOverlayClick,
-  } = props
+  } = mergeProps(defaultDialogProps, props)
 
   const onHandleClickOverlay = (e: any) => {
     if (closeOnOverlayClick && visible && e.target === e.currentTarget) {
@@ -76,6 +78,4 @@ export const DialogWrap: FunctionComponent<
     </>
   )
 }
-
-DialogWrap.defaultProps = defaultDialogProps
 DialogWrap.displayName = 'NutDialogWrap'

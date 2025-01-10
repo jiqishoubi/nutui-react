@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { render, waitFor } from '@testing-library/react'
+import { render, waitFor, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { act } from 'react-dom/test-utils'
 import { ImagePreview } from '../imagepreview'
 
 const images = [
@@ -101,7 +100,7 @@ test('customize indicator and color', async () => {
   const swiperIndicator = container.querySelector('.nut-imagepreview-swiper')
   expect(swiperIndicator).toHaveAttribute(
     'style',
-    'display: block; --nutui-indicator-color: red;'
+    '--nutui-indicator-color: red;'
   )
 })
 
@@ -112,4 +111,38 @@ test('video surported in H5 env', async () => {
 
   const nutVideoPlayer = container.querySelector('.nut-video-player')
   expect(nutVideoPlayer).toBeInTheDocument()
+})
+
+test('closeIcon = true', async () => {
+  const { container } = render(
+    <ImagePreview images={images} videos={videos} visible closeIcon />
+  )
+
+  const closeIcon = container.querySelector('.nut-imagepreview-close')
+  expect(closeIcon).toBeInTheDocument()
+  expect(closeIcon?.classList).toContain('top-right')
+})
+
+test('custom closeIcon', async () => {
+  const { container } = render(
+    <ImagePreview images={images} videos={videos} visible closeIcon="close" />
+  )
+
+  const closeIcon = container.querySelector('.nut-imagepreview-close')
+  expect(closeIcon?.innerHTML).toContain('close')
+})
+
+test('closeIconPosition', async () => {
+  const { container } = render(
+    <ImagePreview
+      images={images}
+      videos={videos}
+      visible
+      closeIcon
+      closeIconPosition="bottom"
+    />
+  )
+
+  const closeIcon = container.querySelector('.nut-imagepreview-close')
+  expect(closeIcon?.classList).toContain('bottom')
 })
