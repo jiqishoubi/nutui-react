@@ -1,15 +1,18 @@
 import React, {
   FunctionComponent,
+  ReactNode,
   useContext,
   useEffect,
   useState,
 } from 'react'
 import { Checked, CheckDisabled, CheckNormal } from '@nutui/icons-react-taro'
 import classNames from 'classnames'
+import { View } from '@tarojs/components'
 import CheckboxGroup from '@/packages/checkboxgroup/index.taro'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
 import Context from '../checkboxgroup/context'
 import { usePropsValue } from '@/utils/use-props-value'
+import { CheckboxLabelPosition } from '@/packages/checkboxgroup/types'
 
 export type CheckboxShape = 'button' | 'round'
 
@@ -18,13 +21,13 @@ export interface CheckboxProps extends BasicComponent {
   disabled: boolean
   defaultChecked: boolean
   shape: CheckboxShape
-  labelPosition: 'left' | 'right'
-  icon: React.ReactNode
-  activeIcon: React.ReactNode
-  indeterminateIcon: React.ReactNode
+  labelPosition: CheckboxLabelPosition
+  icon: ReactNode
+  activeIcon: ReactNode
+  indeterminateIcon: ReactNode
   value: string | number
   indeterminate: boolean
-  label: string | number
+  label: ReactNode
   onChange: (value: boolean) => void
 }
 
@@ -68,8 +71,8 @@ export const Checkbox: FunctionComponent<
   const ctx = useContext(Context)
 
   let [innerChecked, setChecked] = usePropsValue<boolean>({
-    value: props.checked,
-    defaultValue: props.defaultChecked,
+    value: checked,
+    defaultValue: defaultChecked,
     finalValue: defaultChecked,
     onChange,
   })
@@ -134,6 +137,9 @@ export const Checkbox: FunctionComponent<
       if (innerChecked && !innerIndeterminate) {
         return `${cls}${classPrefix}-icon-checked ${classPrefix}-icon-disabled`
       }
+      if (innerChecked && innerIndeterminate) {
+        return `${cls}${classPrefix}-icon-indeterminate ${classPrefix}-icon-disabled`
+      }
       return `${cls}${classPrefix}-icon-disabled`
     }
     if (innerChecked) {
@@ -161,16 +167,13 @@ export const Checkbox: FunctionComponent<
     if (disabled) return
     // 先转换状态
     const latestChecked = !innerChecked
-    // 判断是不是有 context 和 max，有的话需要判断是不是超过最大限制
-    if (ctx && ctx.max !== undefined) {
-      if (latestChecked && ctx.value.length >= ctx.max) return
-    }
+
     setChecked(latestChecked)
   }
 
   const renderButton = () => {
     return (
-      <div
+      <View
         className={classNames(`${classPrefix}-button`, {
           [`${classPrefix}-button-active`]: innerChecked,
           [`${classPrefix}-button-disabled`]: disabled,
@@ -178,15 +181,27 @@ export const Checkbox: FunctionComponent<
       >
         {children || label}
         {innerChecked && activeIcon ? (
-          <div className={classNames(`${classPrefix}-button-icon`)}>
+          <View className={classNames(`${classPrefix}-button-icon`)}>
             {activeIcon}
-          </div>
+          </View>
         ) : null}
-      </div>
+      </View>
+    )
+  }
+
+  const renderListItem = () => {
+    return (
+      <View className="nut-checkbox-list-item">
+        {renderLabel()}
+        {renderIcon()}
+      </View>
     )
   }
 
   const renderCheckboxItem = () => {
+    if (ctx?.list) {
+      return <>{renderListItem()}</>
+    }
     if (shape === 'button') {
       return renderButton()
     }
@@ -199,7 +214,7 @@ export const Checkbox: FunctionComponent<
   }
 
   return (
-    <div
+    <View
       className={classNames(
         classPrefix,
         {
@@ -211,10 +226,9 @@ export const Checkbox: FunctionComponent<
       onClick={handleClick}
     >
       {renderCheckboxItem()}
-    </div>
+    </View>
   )
 }
 
-Checkbox.defaultProps = defaultProps
 Checkbox.displayName = 'NutCheckBox'
 Checkbox.Group = CheckboxGroup

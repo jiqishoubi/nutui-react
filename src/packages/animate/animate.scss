@@ -1,7 +1,4 @@
 .nut-animate {
-  .nut-ani-container {
-    display: inline-block;
-  }
   /* Animation css */
   [class*='nut-animate-'] {
     animation-duration: 0.5s;
@@ -13,6 +10,7 @@
   .nut-animate-slide-right {
     animation-name: slide-right;
   }
+
   @keyframes slide-right {
     0% {
       opacity: 0;
@@ -29,6 +27,7 @@
   .nut-animate-slide-left {
     animation-name: slide-left;
   }
+
   @keyframes slide-left {
     0% {
       opacity: 0;
@@ -45,6 +44,7 @@
   .nut-animate-slide-top {
     animation-name: slide-top;
   }
+
   @keyframes slide-top {
     0% {
       opacity: 0;
@@ -61,6 +61,7 @@
   .nut-animate-slide-bottom {
     animation-name: slide-bottom;
   }
+
   @keyframes slide-bottom {
     0% {
       opacity: 0;
@@ -77,6 +78,7 @@
   .nut-animate-shake {
     animation-name: shake;
   }
+
   @keyframes shake {
     0%,
     100% {
@@ -124,10 +126,12 @@
   .nut-animate-ripple {
     animation-name: ripple;
   }
+
   @keyframes ripple {
     0% {
       transform: scale(1);
     }
+
     50% {
       transform: scale(1.1);
     }
@@ -140,13 +144,16 @@
     animation-timing-function: ease-in-out;
     animation-direction: alternate;
   }
+
   @keyframes breath {
     0% {
       transform: scale(1);
     }
+
     50% {
       transform: scale(1.1);
     }
+
     100% {
       transform: scale(1);
     }
@@ -155,6 +162,7 @@
   // 水波
   .nut-animate-twinkle {
     position: relative;
+
     &::after,
     &::before {
       width: 60 * 1px;
@@ -176,13 +184,16 @@
       animation-delay: 0.4s;
     }
   }
+
   @keyframes twinkle {
     0% {
       transform: scale(0);
     }
+
     20% {
       opacity: 1;
     }
+
     50%,
     100% {
       transform: scale(1.4);
@@ -212,10 +223,12 @@
       filter: blur(3 * 1px);
     }
   }
+
   @keyframes flicker {
     0% {
       transform: translateX(-100 * 1px) skewX(-20deg);
     }
+
     40%,
     100% {
       transform: translateX(150 * 1px) skewX(-20deg);
@@ -227,23 +240,28 @@
     transform-origin: center center;
     animation: jump 0.7s linear;
   }
+
   @keyframes jump {
     0% {
       animation-timing-function: ease-in;
       transform: rotate(0deg) translateY(0);
     }
+
     25% {
       animation-timing-function: ease-out;
       transform: rotate(10deg) translateY(20 * 1px);
     }
+
     50% {
       animation-timing-function: ease-in;
       transform: rotate(0deg) translateY(-10 * 1px);
     }
+
     75% {
       animation-timing-function: ease-out;
       transform: rotate(-10deg) translateY(20 * 1px);
     }
+
     100% {
       animation-timing-function: ease-in;
       transform: rotate(0deg) translateY(0);
@@ -255,6 +273,7 @@
     position: relative;
     animation-name: float-pop;
   }
+
   @keyframes float-pop {
     0% {
       top: 0px;

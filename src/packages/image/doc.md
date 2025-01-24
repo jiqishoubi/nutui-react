@@ -1,16 +1,14 @@
 # Image组件
 
-## 介绍
-
 增强版的 img 标签，提供多种图片填充模式，支持图片加载中提示、加载失败提示。
 
-## 安装
+## 引入
 
 ```tsx
-import { Image } from '@nutui/nutui-react';
+import { Image } from '@nutui/nutui-react'
 ```
 
-## 代码演示
+## 示例代码
 
 ### 基础用法
 
@@ -18,19 +16,7 @@ import { Image } from '@nutui/nutui-react';
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image src={src} width="100%" />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
 :::
 
@@ -40,24 +26,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image
-      src={src}
-      width="100"
-      height="100"
-      fit="contain"
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
 
 :::
 
@@ -67,25 +36,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image
-      src={src}
-      width="100"
-      height="100"
-      fit="contain"
-      position="left"
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
 
 :::
 
@@ -95,51 +46,17 @@ export default App;
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image
-      src={src}
-      width="100"
-      height="100"
-      radius="50%"
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo4.tsx'></CodeBlock>
 
 :::
 
-### 加载中图片
+### 加载中提示
 
 `Image` 组件提供了默认的加载中提示，支持通过 `loading` 自定义内容。
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-import { Loading } from '@nutui/icons-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image
-      width="100"
-      height="100"
-      loading={<Loading className="nut-icon-loading" />}
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo5.tsx'></CodeBlock>
 
 :::
 
@@ -149,26 +66,9 @@ export default App;
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-import { Failure } from '@nutui/icons-react';
-
-const App = () => {
-  return <>
-    <Image
-      src="https://x"
-      width="100"
-      height="100"
-      error={<Failure />}
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo6.tsx'></CodeBlock>
 
 :::
-
 
 ### Image + text 模式
 
@@ -176,35 +76,9 @@ export default App;
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  return <>
-    <Image
-      src="http://m.360buyimg.com/babel/s181x181_jfs/t1/210178/19/10205/31538/619bbcd9E5071aed5/8e1b7eb632aeed49.png"
-      width="30"
-      height="30"
-      style={{ marginRight: '10px' }}
-      onError={() => {
-        console.log('image error')
-      }}
-    />
-    <div
-      style={{
-        width: '220px',
-      }}
-    >
-      雪纺衫女2021年春季新款洋气轻熟上衣
-    </div>
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo7.tsx'></CodeBlock>
 
 :::
-
 
 ### 图片懒加载
 
@@ -212,45 +86,7 @@ export default App;
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image,Cell } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  const imageData = [1, 2, 3, 4, 5, 6]
-  const placeholderImg = 'https://img12.360buyimg.com/imagetools/jfs/t1/180776/26/8319/4587/60c094a8E1ef2ec9d/940780b87700b1d3.png'
-  const style = `
-  .lazy-box{
-    width:100%
-  }
-  .lazy-box .nut-image{
-    margin-bottom: 10px;
-  }
-`
-  return <>
-    <style>{style}</style>
-    <Cell>
-      <div className="lazy-box">
-        {imageData.map((item) => {
-          return (
-            <Image
-              key={item}
-              height="150"
-              src={src}
-              lazy
-              loading={placeholderImg}
-              error={placeholderImg}
-            />
-          )
-        })}
-      </div>
-    </Cell>
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo8.tsx'></CodeBlock>
 
 :::
 
@@ -266,7 +102,7 @@ export default App;
 | alt | 替代文本 | `string` | `-` |
 | width | 宽度，默认单位`px` | `string` | `-` |
 | height | 高度，默认单位`px` | `string` | `-` |
-| radius | 圆角大小 | `string`  \|  `number` | `-` |
+| radius | 圆角大小 | `string` \| `number` | `-` |
 | error | 是否展示图片加载失败 | `boolean \| ReactNode` | `true` |
 | loading | 是否展示加载中图片 | `boolean \| ReactNode` | `true` |
 | lazy | 是否为懒加载图片 | `boolean` | `false` |

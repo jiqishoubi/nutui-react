@@ -215,6 +215,28 @@ export const DatePicker: FunctionComponent<
     }
   }
 
+  const compareDateChange = (
+    currentDate: number,
+    newDate: Date | null,
+    selectedOptions: PickerOption[],
+    index: number
+  ) => {
+    const isEqual = new Date(currentDate)?.getTime() === newDate?.getTime()
+    if (newDate && isDate(newDate)) {
+      if (!isEqual) {
+        setSelectedDate(formatValue(newDate as Date))
+      }
+      onChange?.(
+        selectedOptions,
+        [
+          String(newDate.getFullYear()),
+          String(newDate.getMonth() + 1),
+          String(newDate.getDate()),
+        ],
+        index
+      )
+    }
+  }
   const handlePickerChange = (
     selectedOptions: PickerOption[],
     selectedValue: (number | string)[],
@@ -248,6 +270,18 @@ export const DatePicker: FunctionComponent<
         Number(formatDate[2]),
         getMonthEndDay(Number(formatDate[0]), Number(formatDate[1]))
       )
+
+      if (
+        selectedOptions.length >= 2 &&
+        ['date', 'datehour', 'datetime', 'month-day'].includes(rangeType)
+      ) {
+        const dayOption = formatOption('day', day)
+        if (rangeType === 'month-day') {
+          selectedOptions[1] = dayOption
+        } else {
+          selectedOptions[2] = dayOption
+        }
+      }
       let date: Date | null = null
       if (
         rangeType === 'date' ||
@@ -267,13 +301,25 @@ export const DatePicker: FunctionComponent<
         date = new Date(year, month, day, Number(formatDate[3]))
       }
 
-      const isEqual = new Date(selectedDate)?.getTime() === date?.getTime()
-      date &&
-        isDate(date) &&
-        !isEqual &&
-        setSelectedDate(formatValue(date as Date))
+      compareDateChange(selectedDate, date, selectedOptions, index)
+    } else {
+      // 'hour-minutes' 'time'
+      const [hour, minute, seconds] = selectedValue
+      const currentDate = new Date(selectedDate)
+      const year = currentDate.getFullYear()
+      const month = currentDate.getMonth()
+      const day = currentDate.getDate()
+
+      const date = new Date(
+        year,
+        month,
+        day,
+        Number(hour),
+        Number(minute),
+        rangeType === 'time' ? Number(seconds) : 0
+      )
+      compareDateChange(selectedDate, date, selectedOptions, index)
     }
-    props.onChange && props.onChange(selectedOptions, selectedValue, index)
   }
 
   const formatOption = (type: string, value: string | number) => {
@@ -307,7 +353,7 @@ export const DatePicker: FunctionComponent<
         cmin++
       }
 
-      if (cmin <= val) {
+      if (cmin <= Number(val)) {
         index++
       }
     }
@@ -315,8 +361,8 @@ export const DatePicker: FunctionComponent<
     pickerValue[columnIndex] = arr[index]?.value
     setPickerValue([...pickerValue])
 
-    if (props.filter && props.filter(type, arr)) {
-      return props.filter(type, arr)
+    if (filter?.(type, arr)) {
+      return filter?.(type, arr)
     }
     return arr
   }
@@ -364,7 +410,7 @@ export const DatePicker: FunctionComponent<
 
   return (
     <div className={`nut-datepicker ${className}`} style={style} {...rest}>
-      {pickerOptions.length && (
+      {pickerOptions.length > 0 && (
         <Picker
           {...pickerProps}
           title={title}
@@ -388,5 +434,4 @@ export const DatePicker: FunctionComponent<
   )
 }
 
-DatePicker.defaultProps = defaultProps
 DatePicker.displayName = 'NutDatePicker'

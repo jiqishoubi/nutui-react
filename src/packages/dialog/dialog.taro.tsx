@@ -1,10 +1,11 @@
-import React, { FunctionComponent } from 'react'
+import React, { FunctionComponent, useState } from 'react'
 import type { MouseEvent } from 'react'
 import classNames from 'classnames'
 import { CSSTransition } from 'react-transition-group'
 import { View } from '@tarojs/components'
+import { Close } from '@nutui/icons-react-taro'
 import Button from '@/packages/button/index.taro'
-import { BasicDialogProps } from './config'
+import { DialogBasicProps } from './config'
 import { Content } from './content.taro'
 import { useConfig } from '@/packages/configprovider/configprovider.taro'
 import Overlay from '@/packages/overlay/index.taro'
@@ -16,8 +17,9 @@ import {
 } from '@/utils/use-custom-event'
 import { BasicComponent } from '@/utils/typings'
 import { useLockScrollTaro } from '@/utils/use-lock-scoll-taro'
+import { mergeProps } from '@/utils/merge-props'
 
-export type DialogProps = BasicDialogProps & BasicComponent
+export type DialogProps = DialogBasicProps & BasicComponent
 const defaultProps = {
   title: '',
   content: '',
@@ -32,6 +34,8 @@ const defaultProps = {
   disableConfirmButton: false,
   footerDirection: 'horizontal',
   lockScroll: true,
+  closeIconPosition: 'bottom',
+  closeIcon: false,
   beforeCancel: () => true,
   beforeClose: () => true,
   onOverlayClick: () => true,
@@ -43,6 +47,7 @@ export const BaseDialog: FunctionComponent<Partial<DialogProps>> & {
 } = (props) => {
   const classPrefix = 'nut-dialog'
   const { locale } = useConfig()
+  const [loading, setLoading] = useState(false)
 
   const {
     params: {
@@ -65,6 +70,8 @@ export const BaseDialog: FunctionComponent<Partial<DialogProps>> & {
       confirmText,
       cancelText,
       overlay,
+      closeIconPosition,
+      closeIcon,
       onClose,
       onCancel,
       onConfirm,
@@ -72,7 +79,7 @@ export const BaseDialog: FunctionComponent<Partial<DialogProps>> & {
       beforeClose,
     },
     setParams,
-  } = useParams({ ...defaultProps, ...props })
+  } = useParams(mergeProps(defaultProps, props))
 
   useCustomEvent(
     id as string,
@@ -96,11 +103,18 @@ export const BaseDialog: FunctionComponent<Partial<DialogProps>> & {
       onCancel?.()
     }
 
-    const handleOk = (e: MouseEvent<HTMLButtonElement>) => {
+    const handleOk = async (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
-      onClose?.()
-      onConfirm?.(e)
+      setLoading(true)
+      try {
+        await onConfirm?.(e)
+        setLoading(false)
+        onClose?.()
+      } catch {
+        setLoading(false)
+      }
     }
+
     return (
       footer || (
         <>
@@ -121,6 +135,7 @@ export const BaseDialog: FunctionComponent<Partial<DialogProps>> & {
               })}
               disabled={disableConfirmButton}
               onClick={(e) => handleOk(e)}
+              loading={loading}
             >
               {confirmText || locale.confirm}
             </Button>
@@ -129,6 +144,26 @@ export const BaseDialog: FunctionComponent<Partial<DialogProps>> & {
       )
     )
   }
+
+  const renderCloseIcon = () => {
+    if (!closeIcon) return null
+    const handleCancel = () => {
+      if (!beforeCancel?.()) return
+      if (!beforeClose?.()) return
+      onClose?.()
+      onCancel?.()
+    }
+    const closeClasses = classNames({
+      [`${classPrefix}-close`]: true,
+      [`${classPrefix}-close-${closeIconPosition}`]: true,
+    })
+    return (
+      <View className={closeClasses} onClick={handleCancel}>
+        {React.isValidElement(closeIcon) ? closeIcon : <Close />}
+      </View>
+    )
+  }
+
   const onHandleClickOverlay = (e: any) => {
     if (closeOnOverlayClick && visible && e.target === e.currentTarget) {
       const closed = onOverlayClick && onOverlayClick()
@@ -166,6 +201,7 @@ export const BaseDialog: FunctionComponent<Partial<DialogProps>> & {
             style={style}
             title={title}
             header={header}
+            close={renderCloseIcon()}
             footer={renderFooter()}
             footerDirection={footerDirection}
             visible={visible}
@@ -190,7 +226,6 @@ export function close(selector: string) {
   customEvents.trigger(path, { status: false })
 }
 
-BaseDialog.defaultProps = defaultProps
 BaseDialog.displayName = 'NutDialog'
 BaseDialog.open = open
 BaseDialog.close = close

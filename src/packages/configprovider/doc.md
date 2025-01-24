@@ -1,16 +1,14 @@
 # ConfigProvider 全局配置
 
-## 介绍
-
 用于全局配置 NutUI-React 组件，提供主题定制，国际化支持。
 
-## 安装
+## 引入
 
 ```tsx
-import { ConfigProvider } from '@nutui/nutui-react';
+import { ConfigProvider } from '@nutui/nutui-react'
 ```
 
-## 代码演示
+## 示例代码
 
 ### 主题定制
 
@@ -26,6 +24,8 @@ NutUI-React 可以通过 [CSS 变量](https://developer.mozilla.org/zh-CN/docs/W
 /* 添加这段样式后，Primary Button 会变成绿色 */
 :root {
   --nutui-color-primary: green;
+  --nutui-color-primary-stop1: green;
+  --nutui-color-primary-stop2: green;
 }
 ```
 
@@ -39,39 +39,15 @@ ConfigProvider 组件提供了覆盖 CSS 变量的能力，你需要在根节点
 
 :::demo
 
-```tsx
-import React from 'react';
-import {
-  ConfigProvider,
-  Cell,
-  Button,
-  Rate
-} from "@nutui/nutui-react";
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
-const darkTheme = {
-  nutuiColorPrimary: 'green',
-  nutuiColorPrimaryStop1: 'green',
-  nutuiColorPrimaryStop2: 'green',
-}
-const App = () => {
-  return (
-    <ConfigProvider theme={darkTheme}>
-      <Cell.Group>
-        <Cell>
-          <Rate defaultValue={3} />
-        </Cell>
-        <Cell>
-          <Button type="primary" size="large">
-            提交
-          </Button>
-        </Cell>
-      </Cell.Group>
-    </ConfigProvider>
-  )
-}
+:::
 
-export default App;
-```
+:::demo
+
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
+
+:::
 
 #### CSS 变量
 
@@ -105,35 +81,33 @@ page {
 
 ```
 
-:::
-
 ### 国际化
 
 NutUI-React 提供了 ConfigProvider 组件用于全局配置国际化文案。目前支持以下语言:
 
-*   简体中文 | zh-CN
-*   繁体中文（中国台湾） | zh-TW
-*   维吾尔语 ｜ zh-UG
-*   英语（美式） | en-US
-*   印尼语 ｜ id-ID
+- 简体中文 | zh-CN
+- 繁体中文（中国台湾） | zh-TW
+- 维吾尔语 ｜ zh-UG
+- 英语（美式） | en-US
+- 印尼语 ｜ id-ID
 
 :::demo
 
-```tsx
-import React from 'react';
-import { ConfigProvider, Textarea } from "@nutui/nutui-react";
-import en from "@nutui/nutui-react/dist/locales/en-US";
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
 
-const App = () => {
-  return (
-    <ConfigProvider locale={en}>
-      <Textarea />
-    </ConfigProvider>
-  )
-}
+:::
 
-export default App;
-```
+:::demo
+
+<CodeBlock src='h5/demo4.tsx'></CodeBlock>
+
+:::
+
+### RTL
+
+:::demo
+
+<CodeBlock src='h5/demo5.tsx'></CodeBlock>
 
 :::
 

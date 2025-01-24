@@ -175,8 +175,11 @@
       }
 
       &-c {
-        width: 100%;
-        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: $uploader-image-width;
+        height: $uploader-image-height;
         position: initial;
         border-radius: $uploader-image-border-radius;
       }
@@ -194,6 +197,7 @@
           width: 90%;
           font-size: 12px;
           color: $color-text;
+          @include moreline-ellipsis();
 
           &.error {
             color: red !important;
@@ -206,9 +210,42 @@
           .nut-icon-Link {
             flex-shrink: 0;
           }
-
-          @include moreline-ellipsis();
         }
+      }
+    }
+  }
+}
+
+[dir='rtl'] .nut-uploader,
+.nut-rtl .nut-uploader {
+  &-input {
+    left: auto;
+    right: 0;
+  }
+
+  &-preview {
+    margin-right: 0;
+    margin-left: $uploader-preview-margin-right;
+    &-progress {
+      left: auto;
+      right: 0;
+    }
+
+    &.list {
+      margin-right: 0;
+      margin-left: 0px;
+    }
+
+    .close {
+      right: auto;
+      left: $uploader-preview-close-right;
+      transform: translate(-50%, -50%);
+    }
+
+    &-img {
+      .tips {
+        left: auto;
+        right: 0;
       }
     }
   }

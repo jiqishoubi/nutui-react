@@ -26,7 +26,6 @@ const defaultProps = {
   showCount: false,
   rows: 2,
   maxLength: 140,
-  placeholder: '',
   readOnly: false,
   disabled: false,
   autoSize: false,
@@ -62,7 +61,7 @@ export const TextArea: FunctionComponent<
   const compositionRef = useRef(false)
 
   const format = (value: string) => {
-    if (maxLength !== undefined && value.length > maxLength) {
+    if (maxLength !== -1 && value.length > maxLength) {
       return value.substring(0, maxLength)
     }
     return value
@@ -138,7 +137,9 @@ export const TextArea: FunctionComponent<
         }}
         rows={rows}
         maxLength={maxLength === -1 ? undefined : maxLength}
-        placeholder={placeholder || locale.placeholder}
+        placeholder={
+          placeholder === undefined ? locale.placeholder : placeholder
+        }
         {...rest}
       />
       {showCount && (
@@ -150,5 +151,4 @@ export const TextArea: FunctionComponent<
   )
 }
 
-TextArea.defaultProps = defaultProps
 TextArea.displayName = 'NutTextArea'

@@ -40,23 +40,17 @@ export const Steps: FunctionComponent<
     classPrefix,
     {
       [`${classPrefix}-${direction}`]: true,
-      [`${classPrefix}-dot`]: !!props.dot,
+      [`${classPrefix}-dot`]: !!dot,
     },
     className
   )
   return (
     <DataContext.Provider value={parentSteps}>
-      {React.createElement(
-        'div',
-        {
-          className: classes,
-          ...restProps,
-        },
-        children
-      )}
+      <div className={classes} {...restProps}>
+        {children}
+      </div>
     </DataContext.Provider>
   )
 }
 
-Steps.defaultProps = defaultProps
 Steps.displayName = 'NutSteps'

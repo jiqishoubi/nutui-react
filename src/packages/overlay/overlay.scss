@@ -15,12 +15,14 @@
   }
 }
 
+[dir='rtl'] .nut-overlay,
+.nut-rtl .nut-overlay {
+  left: auto;
+  right: 0;
+}
+
 .nut-overflow-hidden {
   overflow: hidden !important;
-
-  .taro_page {
-    overflow: hidden !important;
-  }
 }
 
 .nut-overlay-slide {

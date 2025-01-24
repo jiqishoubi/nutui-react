@@ -1,13 +1,11 @@
 # Image
 
-## Intro
-
 Enhanced img tag with multiple image fill modes, support for loading hint, loading failure hint.
 
-## Install
+## Import
 
 ```tsx
-import { Image } from '@nutui/nutui-react';
+import { Image } from '@nutui/nutui-react'
 ```
 
 ## Demo
@@ -18,20 +16,7 @@ The basic usage is the same as that of the native IMG tag. You can set the nativ
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image src={src} width="100%" />
-  </>
-}
-export default App;
-
-```
+<CodeBlock src='h5/demo1.tsx'></CodeBlock>
 
 :::
 
@@ -41,24 +26,7 @@ The `fit` attribute is used to set the image filling mode, which is equivalent t
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image
-      src={src}
-      width="100"
-      height="100"
-      fit="contain"
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo2.tsx'></CodeBlock>
 
 :::
 
@@ -68,25 +36,7 @@ The position property can be used to set the position of the picture, which is e
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image
-      src={src}
-      width="100"
-      height="100"
-      fit="contain"
-      position="left"
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo3.tsx'></CodeBlock>
 
 :::
 
@@ -96,24 +46,7 @@ The round attribute allows you to set the image to be round. Note that if the im
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image
-      src={src}
-      width="100"
-      height="100"
-      radius="50%"
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo4.tsx'></CodeBlock>
 
 :::
 
@@ -123,24 +56,7 @@ The Image component provides a default loading prompt and supports custom conten
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-import { Loading } from '@nutui/icons-react';
-
-const App = () => {
-  const src =
-    '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  return <>
-    <Image
-      width="100"
-      height="100"
-      loading={<Loading className="nut-icon-loading" />}
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo5.tsx'></CodeBlock>
 
 :::
 
@@ -150,108 +66,27 @@ The Image component provides a default loading failure warning and supports cust
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-import { Failure } from '@nutui/icons-react';
-
-const App = () => {
-  return <>
-    <Image
-      src="https://x"
-      width="100"
-      height="100"
-      error={<Failure />}
-    />
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo6.tsx'></CodeBlock>
 
 :::
 
-
-### Image + text Mode
+### Image + text
 
 `Image` and text
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image } from '@nutui/nutui-react';
-
-const App = () => {
-  return <>
-    <Image
-      src="http://m.360buyimg.com/babel/s181x181_jfs/t1/210178/19/10205/31538/619bbcd9E5071aed5/8e1b7eb632aeed49.png"
-      width="30"
-      height="30"
-      style={{ marginRight: '10px' }}
-      onError={() => {
-        console.log('image error')
-      }}
-    />
-    <div
-      style={{
-        width: '220px',
-      }}
-    >
-      Chiffon, 2021, spring, the new easy-to-wear blouse
-    </div>
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo7.tsx'></CodeBlock>
 
 :::
 
-
-### Image LazyLoad
+### LazyLoad
 
 The Image component provides lazy loading of images, which can be realized by configuring `isLazy`, which is not enabled by default.
 
 :::demo
 
-```tsx
-import React from "react";
-import { Image,Cell } from '@nutui/nutui-react';
-
-const App = () => {
-  const src =
-      '//img10.360buyimg.com/ling/jfs/t1/181258/24/10385/53029/60d04978Ef21f2d42/92baeb21f907cd24.jpg'
-  const imageData = [1, 2, 3, 4, 5, 6]
-  const placeholderImg = 'https://img12.360buyimg.com/imagetools/jfs/t1/180776/26/8319/4587/60c094a8E1ef2ec9d/940780b87700b1d3.png'
-  const style = `
-  .lazy-box{
-    width:100%
-  }
-  .lazy-box .nut-image{
-    margin-bottom: 10px;
-  }
-`
-  return <>
-    <style>{style}</style>
-    <Cell>
-      <div className="lazy-box">
-        {imageData.map((item) => {
-          return (
-            <Image
-              key={item}
-              height="150"
-              src={src}
-              lazy
-              loading={placeholderImg}
-              error={placeholderImg}
-            />
-          )
-        })}
-      </div>
-    </Cell>
-  </>
-}
-export default App;
-```
+<CodeBlock src='h5/demo8.tsx'></CodeBlock>
 
 :::
 
@@ -267,7 +102,7 @@ export default App;
 | alt | alternative text | `string` | `-` |
 | width | width, default unit `px` | `string` | `-` |
 | height | height, default unit `px` | `string` | `-` |
-| radius | rounded corner size | `string`  \|  `number` | `-` |
+| radius | rounded corner size | `string` \| `number` | `-` |
 | error | Whether to display image loading failure | `boolean \| ReactNode` | `true` |
 | loading | Whether to show loading images | `boolean \| ReactNode` | `true` |
 | lazy | Whether to lazy load images | `boolean` | `false` |

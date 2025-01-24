@@ -10,7 +10,7 @@ import {
   getPreMonthDates,
 } from '@/utils/date'
 import requestAniFrame from '@/utils/raf'
-import { useConfig } from '@/packages/configprovider/configprovider'
+import { useConfig } from '@/packages/configprovider'
 import { usePropsValue } from '@/utils/use-props-value'
 import {
   splitDate,
@@ -21,7 +21,12 @@ import {
   isEnd,
   isStartAndEnd,
 } from '../calendar/utils'
-import { Day, MonthInfo, InputDate, SelectedType } from '../calendar/types'
+import {
+  CalendarDay,
+  CalendarMonthInfo,
+  CalendarValue,
+  CalendarType,
+} from '../calendar/types'
 
 type CalendarRef = {
   scrollToDate: (date: string) => void
@@ -32,14 +37,14 @@ interface CalendarState {
 }
 
 export interface CalendarItemProps extends PopupProps {
-  type: SelectedType
+  type: CalendarType
   autoBackfill: boolean
   popup: boolean
   title: string
-  value?: InputDate
-  defaultValue?: InputDate
-  startDate: InputDate
-  endDate: InputDate
+  value?: CalendarValue
+  defaultValue?: CalendarValue
+  startDate: CalendarValue
+  endDate: CalendarValue
   showToday: boolean
   startText: ReactNode
   endText: ReactNode
@@ -48,11 +53,12 @@ export interface CalendarItemProps extends PopupProps {
   showSubTitle: boolean
   scrollAnimation: boolean
   firstDayOfWeek: number
-  disableDate: (date: Day) => boolean
+  disableDate: (date: CalendarDay) => boolean
   renderHeaderButtons: () => string | JSX.Element
-  renderDay: (date: Day) => string | JSX.Element
-  renderDayTop: (date: Day) => string | JSX.Element
-  renderDayBottom: (date: Day) => string | JSX.Element
+  renderBottomButton: () => string | JSX.Element
+  renderDay: (date: CalendarDay) => string | JSX.Element
+  renderDayTop: (date: CalendarDay) => string | JSX.Element
+  renderDayBottom: (date: CalendarDay) => string | JSX.Element
   onConfirm: (data: string) => void
   onUpdate: () => void
   onDayClick: (data: string) => void
@@ -74,7 +80,7 @@ const defaultProps = {
   showSubTitle: true,
   scrollAnimation: true,
   firstDayOfWeek: 0,
-  disableDate: (date: Day) => false,
+  disableDate: (date: CalendarDay) => false,
   renderHeaderButtons: undefined,
   renderDay: undefined,
   renderDayTop: undefined,
@@ -111,9 +117,11 @@ export const CalendarItem = React.forwardRef<
     firstDayOfWeek,
     disableDate,
     renderHeaderButtons,
+    renderBottomButton,
     renderDay,
     renderDayTop,
     renderDayBottom,
+    value,
     onConfirm,
     onUpdate,
     onDayClick,
@@ -164,8 +172,8 @@ export const CalendarItem = React.forwardRef<
     return undefined
   }
 
-  const [currentDate, setCurrentDate] = usePropsValue<InputDate>({
-    value: props.value,
+  const [currentDate, setCurrentDate] = usePropsValue<CalendarValue>({
+    value,
     defaultValue: resetDefaultValue(),
     finalValue: [],
     onChange: (val) => {},
@@ -191,8 +199,8 @@ export const CalendarItem = React.forwardRef<
       const y = parseInt(date[0], 10)
       const m = parseInt(date[1], 10)
       const days = [
-        ...(getPreMonthDates('prev', y, m, firstDayOfWeek) as Day[]),
-        ...(getDaysStatus('active', y, m) as Day[]),
+        ...(getPreMonthDates('prev', y, m, firstDayOfWeek) as CalendarDay[]),
+        ...(getDaysStatus('active', y, m) as CalendarDay[]),
       ]
       const cssHeight = 39 + (days.length > 35 ? 384 : 320)
 
@@ -201,7 +209,7 @@ export const CalendarItem = React.forwardRef<
         const monthEle = monthData[monthData.length - 1]
         scrollTop = monthEle.scrollTop + monthEle.cssHeight
       }
-      const monthInfo: MonthInfo = {
+      const monthInfo: CalendarMonthInfo = {
         curData: date,
         title: monthTitle(y, m),
         monthData: days,
@@ -284,7 +292,7 @@ export const CalendarItem = React.forwardRef<
   }
 
   const setDefaultDate = () => {
-    let defaultData: InputDate = []
+    let defaultData: CalendarValue = []
     // 日期转化为数组，限制初始日期。判断时间范围
     if (type === 'range' && Array.isArray(currentDate)) {
       if (currentDate.length > 0) {
@@ -357,7 +365,7 @@ export const CalendarItem = React.forwardRef<
     return defaultData
   }
 
-  const getCurrentIndex = (defaultData: InputDate) => {
+  const getCurrentIndex = (defaultData: CalendarValue) => {
     // 设置默认可见区域
     let current = 0
     let lastCurrent = 0
@@ -391,7 +399,7 @@ export const CalendarItem = React.forwardRef<
   }
 
   const renderCurrentDate = () => {
-    const defaultData: InputDate = setDefaultDate()
+    const defaultData: CalendarValue = setDefaultDate()
     const current = getCurrentIndex(defaultData)
 
     if (defaultData.length > 0) {
@@ -407,7 +415,7 @@ export const CalendarItem = React.forwardRef<
           monthsData[current.lastCurrent],
           true
         )
-      } else if (props.type === 'week') {
+      } else if (type === 'week') {
         chooseDay(
           { day: defaultData[2], type: 'curr' },
           monthsData[current.current],
@@ -477,8 +485,11 @@ export const CalendarItem = React.forwardRef<
 
   useEffect(() => {
     setCurrentDate(resetDefaultValue() || [])
-    popup && resetRender()
   }, [defaultValue])
+
+  useEffect(() => {
+    popup && resetRender()
+  }, [currentDate])
 
   // 暴露出的API
   const scrollToDate = (date: string) => {
@@ -524,6 +535,7 @@ export const CalendarItem = React.forwardRef<
     }
     const scrollTop = (e.target as HTMLElement).scrollTop
     let current = Math.floor(scrollTop / avgHeight)
+    if (current < 0) return
     if (!monthsData[current + 1]) return
     const nextTop = monthsData[current + 1].scrollTop
     const nextHeight = monthsData[current + 1].cssHeight
@@ -555,7 +567,7 @@ export const CalendarItem = React.forwardRef<
     scrollToDate,
   }))
 
-  const getClasses = (day: Day, month: MonthInfo) => {
+  const getClasses = (day: CalendarDay, month: CalendarMonthInfo) => {
     const dateStr = getCurrDate(day, month)
 
     if (day.type === 'active') {
@@ -604,7 +616,11 @@ export const CalendarItem = React.forwardRef<
     return `${dayPrefix}-disabled`
   }
 
-  const chooseDay = (day: Day, month: MonthInfo, isFirst?: boolean) => {
+  const chooseDay = (
+    day: CalendarDay,
+    month: CalendarMonthInfo,
+    isFirst?: boolean
+  ) => {
     if (getClasses(day, month) === `${dayPrefix}-disabled`) {
       return
     }
@@ -727,7 +743,7 @@ export const CalendarItem = React.forwardRef<
   })
 
   // 是否有开始提示
-  const isStartTip = (day: Day, month: MonthInfo) => {
+  const isStartTip = (day: CalendarDay, month: CalendarMonthInfo) => {
     return (
       (type === 'range' || type === 'week') &&
       day.type === 'active' &&
@@ -736,7 +752,7 @@ export const CalendarItem = React.forwardRef<
   }
 
   // 是否有结束提示
-  const isEndTip = (day: Day, month: MonthInfo) => {
+  const isEndTip = (day: CalendarDay, month: CalendarMonthInfo) => {
     return (
       currentDate.length >= 2 &&
       (type === 'range' || type === 'week') &&
@@ -794,7 +810,7 @@ export const CalendarItem = React.forwardRef<
                       {month.title}
                     </div>
                     <div className={`${classPrefix}-days`}>
-                      {month.monthData.map((day: Day, i: number) => (
+                      {month.monthData.map((day: CalendarDay, i: number) => (
                         <div
                           className={[
                             `${classPrefix}-day`,
@@ -861,23 +877,26 @@ export const CalendarItem = React.forwardRef<
     return (
       <div className="nut-calendar-footer">
         {children}
-        <div className="calendar-confirm-btn" onClick={confirm}>
-          {confirmText || locale.confirm}
+        <div onClick={confirm}>
+          {renderBottomButton ? (
+            renderBottomButton()
+          ) : (
+            <div className="calendar-confirm-btn">
+              {confirmText || locale.confirm}
+            </div>
+          )}
         </div>
       </div>
     )
   }
 
   return (
-    <>
-      <div className={classes} style={style}>
-        {renderHeader()}
-        {renderContent()}
-        {popup && !autoBackfill ? renderFooter() : ''}
-      </div>
-    </>
+    <div className={classes} style={style}>
+      {renderHeader()}
+      {renderContent()}
+      {popup && !autoBackfill ? renderFooter() : ''}
+    </div>
   )
 })
 
-CalendarItem.defaultProps = defaultProps
 CalendarItem.displayName = 'NutCalendarItem'

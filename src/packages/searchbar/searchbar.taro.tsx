@@ -5,38 +5,24 @@ import { useConfig } from '@/packages/configprovider/configprovider.taro'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
 
 export interface SearchBarProps extends BasicComponent {
-  /** 文本值	 */
   value?: number | string
-  /** 输入框占位提示文字	 */
   placeholder?: string
-  /** 搜索框形状，可选值为 round	 */
   shape?: 'square' | 'round'
-  /** 是否禁用输入框	 */
   disabled?: boolean
-  /** 最大输入长度	 */
   maxLength?: number
-  /** 是否启用清除图标，点击清除图标后会清空输入框	 */
   clearable?: boolean
-  /** 是否将输入框设为只读状态，只读状态下无法输入内容   */
   readOnly?: boolean
-  /**  是否自动聚焦，iOS 系统不支持该属性	 */
   autoFocus?: boolean
   backable: boolean
   left: React.ReactNode
   right: React.ReactNode
   leftIn: React.ReactNode
   rightIn: React.ReactNode
-  /**  确定搜索时触发	 */
   onSearch?: (val: string) => void
-  /** 输入框内容变化时触发	 */
-  onChange?: (value: string, event: ChangeEvent<HTMLInputElement>) => void
-  /** 输入框获得焦点时触发	 */
+  onChange?: (value: string, event?: ChangeEvent<HTMLInputElement>) => void
   onFocus?: (value: string, event: FocusEvent<HTMLInputElement>) => void
-  /** 输入框失去焦点时触发	 */
   onBlur?: (value: string, event: FocusEvent<HTMLInputElement>) => void
-  /** 点击清除按钮后触发	 */
   onClear?: (event: MouseEvent<HTMLDivElement>) => void
-  /** 点击输入区域时触发	 */
   onInputClick?: (event: MouseEvent<HTMLInputElement>) => void
 }
 
@@ -66,9 +52,10 @@ export const SearchBar: FunctionComponent<
 
   const { locale } = useConfig()
   const searchRef = useRef<HTMLInputElement>(null)
-  const [value, setValue] = useState(() => props.value)
 
   const {
+    value: outerValue,
+    style,
     placeholder,
     shape,
     className,
@@ -93,6 +80,8 @@ export const SearchBar: FunctionComponent<
     ...props,
   }
 
+  const [value, setValue] = useState(() => outerValue)
+
   const forceFocus = () => {
     const searchSelf: HTMLInputElement | null = searchRef.current
     searchSelf && searchSelf.focus()
@@ -114,8 +103,8 @@ export const SearchBar: FunctionComponent<
     onBlur && onBlur?.(value, event)
   }
   useEffect(() => {
-    setValue(props.value || '')
-  }, [props.value])
+    setValue(outerValue || '')
+  }, [outerValue])
   useEffect(() => {
     autoFocus && forceFocus()
   }, [autoFocus])
@@ -126,7 +115,7 @@ export const SearchBar: FunctionComponent<
           clearable ? `${classPrefix}-input-clear` : ''
         }`}
         ref={searchRef}
-        style={{ ...props.style }}
+        style={style}
         value={value || ''}
         placeholder={placeholder || locale.placeholder}
         disabled={disabled}
@@ -187,6 +176,7 @@ export const SearchBar: FunctionComponent<
     }
     setValue('')
     forceFocus()
+    onChange && onChange?.('')
     onClear && onClear(event)
   }
   const onKeypress = (e: any) => {
@@ -202,7 +192,7 @@ export const SearchBar: FunctionComponent<
       className={`${classPrefix} ${
         disabled ? `${classPrefix}-disabled` : ''
       }  ${className || ''}`}
-      style={{ ...props.style }}
+      style={style}
     >
       {renderLeft()}
       <div
@@ -220,5 +210,4 @@ export const SearchBar: FunctionComponent<
   )
 }
 
-SearchBar.defaultProps = defaultProps
 SearchBar.displayName = 'NutSearchBar'

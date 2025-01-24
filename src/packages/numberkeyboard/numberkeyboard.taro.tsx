@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo, useState } from 'react'
+import React, { FunctionComponent, ReactNode, useMemo, useState } from 'react'
 import classNames from 'classnames'
 import { ArrowDown } from '@nutui/icons-react-taro'
 import { View } from '@tarojs/components'
@@ -9,6 +9,7 @@ import { ComponentDefaults } from '@/utils/typings'
 
 export interface NumberKeyboardProps extends PopupProps {
   visible: boolean
+  rightActions: ReactNode
   confirmText?: string
   type: 'default' | 'rightColumn'
   custom: Array<string>
@@ -21,6 +22,7 @@ export interface NumberKeyboardProps extends PopupProps {
 const defaultProps = {
   ...ComponentDefaults,
   visible: false,
+  rightActions: '',
   type: 'default',
   custom: [],
   random: false,
@@ -34,6 +36,7 @@ export const NumberKeyboard: FunctionComponent<
   const { locale } = useConfig()
   const {
     title,
+    rightActions,
     confirmText,
     visible,
     type,
@@ -46,7 +49,7 @@ export const NumberKeyboard: FunctionComponent<
     onClose,
     onConfirm,
     ...rest
-  } = props
+  } = { ...defaultProps, ...props }
   const classPrefix = 'nut-numberkeyboard'
 
   const getBasicKeys = () => {
@@ -97,17 +100,37 @@ export const NumberKeyboard: FunctionComponent<
     }
     const onTouchEnd = (item: { id: string; type: string }) => {
       setActive(false)
-      if (item.type === 'num' || item.type === 'custom') {
-        onChange && onChange(item.id)
+      switch (item.type) {
+        case 'num':
+        case 'custom':
+          onChange?.(item.id)
+          break
+        case 'close':
+          onClose?.()
+          break
+        case 'delete':
+          onDelete?.()
+          break
+        case 'confirm':
+          onConfirm?.()
+          break
+        default:
+          break
       }
-      if (item.type === 'close') {
-        onClose && onClose()
-      }
-      if (item.type === 'delete') {
-        onDelete && onDelete()
-      }
-      if (item.type === 'confirm') {
-        onConfirm && onConfirm()
+    }
+    const renderContent = (item: { id: string; type: string }) => {
+      switch (item.type) {
+        case 'num':
+        case 'custom':
+          return <div>{item.id}</div>
+        case 'delete':
+          return <DeleteIcon />
+        case 'close':
+          return <ArrowDown size={18} />
+        case 'confirm':
+          return <>{confirmText || locale.done}</>
+        default:
+          return null
       }
     }
     return (
@@ -124,12 +147,7 @@ export const NumberKeyboard: FunctionComponent<
           onTouchEnd={() => onTouchEnd(item)}
           onTouchCancel={() => onTouchEnd(item)}
         >
-          {(item.type === 'num' || item.type === 'custom') && (
-            <div>{item.id}</div>
-          )}
-          {item.type === 'delete' && <DeleteIcon />}
-          {item.type === 'close' && <ArrowDown size={18} />}
-          {item.type === 'confirm' && <>{confirmText || locale.done}</>}
+          {renderContent(item)}
         </div>
       </div>
     )
@@ -137,13 +155,13 @@ export const NumberKeyboard: FunctionComponent<
 
   return (
     <Popup
+      {...rest}
       visible={visible}
       position="bottom"
       onOverlayClick={onClose}
       onCloseIconClick={onClose}
       zIndex={9999}
       overlayStyle={{ backgroundColor: 'rgba(0, 0, 0, 0)' }}
-      {...rest}
     >
       <div className={classNames(classPrefix, className)} style={style}>
         {title && (
@@ -154,7 +172,7 @@ export const NumberKeyboard: FunctionComponent<
                 className={`${classPrefix}-header-close`}
                 onClick={onConfirm}
               >
-                {locale.done}
+                {rightActions || locale.done}
               </span>
             )}
           </div>
@@ -189,5 +207,4 @@ export const NumberKeyboard: FunctionComponent<
   )
 }
 
-NumberKeyboard.defaultProps = defaultProps
 NumberKeyboard.displayName = 'NutNumberKeyboard'

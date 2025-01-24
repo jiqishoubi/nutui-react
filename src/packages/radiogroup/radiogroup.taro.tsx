@@ -1,20 +1,23 @@
 import React, { useCallback } from 'react'
 import classNames from 'classnames'
-import { RadioGroupOptionType } from './types'
+import {
+  RadioGroupDirection,
+  RadioGroupOption,
+  RadioGroupPosition,
+  RadioGroupShape,
+} from './types'
 import RadioContext from './context'
 import Radio from '@/packages/radio/index.taro'
 import { usePropsValue } from '@/utils/use-props-value'
 
-type Position = 'left' | 'right'
-type Direction = 'horizontal' | 'vertical'
-
 export interface RadioGroupProps {
   value?: string | number
   defaultValue?: string | number
-  labelPosition: Position
-  direction: Direction
+  labelPosition: RadioGroupPosition
+  direction: RadioGroupDirection
+  shape?: RadioGroupShape
   disabled?: boolean
-  options: RadioGroupOptionType[]
+  options: RadioGroupOption[]
   onChange: (value: string | number) => void
 }
 
@@ -39,12 +42,21 @@ export const RadioGroup = React.forwardRef(
       value,
       defaultValue,
       onChange,
+      shape,
       labelPosition,
       direction,
       options,
       disabled,
       ...rest
     } = { ...defaultProps, ...props }
+
+    const cls = classNames(
+      classPrefix,
+      {
+        [`${classPrefix}-${props.direction}`]: props.direction,
+      },
+      className
+    )
 
     const [val2State, setVal2State] = usePropsValue<string | number>({
       defaultValue: props.defaultValue,
@@ -68,13 +80,14 @@ export const RadioGroup = React.forwardRef(
           />
         )
       })
-    }, [options])
+    }, [options, labelPosition, val2State])
 
     return (
       <RadioContext.Provider
         value={{
           labelPosition: labelPosition || 'right',
           disabled,
+          shape,
           value: val2State,
           check: (value: string | number) => {
             setVal2State(value)
@@ -84,16 +97,7 @@ export const RadioGroup = React.forwardRef(
           },
         }}
       >
-        <div
-          className={classNames(
-            classPrefix,
-            {
-              [`${classPrefix}-${props.direction}`]: props.direction,
-            },
-            className
-          )}
-          {...rest}
-        >
+        <div className={cls} {...rest}>
           {options?.length ? renderOptionsChildren() : children}
         </div>
       </RadioContext.Provider>
@@ -101,5 +105,4 @@ export const RadioGroup = React.forwardRef(
   }
 )
 
-RadioGroup.defaultProps = defaultProps
 RadioGroup.displayName = 'NutRadioGroup'

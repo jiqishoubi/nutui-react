@@ -2,6 +2,7 @@ import React, { FunctionComponent, useState, useRef } from 'react'
 import classNames from 'classnames'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
 import { useIsomorphicLayoutEffect } from '@/utils/use-isomprphic-layout-effect'
+import { useRtl } from '../configprovider'
 
 export type EllipsisDirection = 'start' | 'end' | 'middle'
 type EllipsisValue = {
@@ -51,14 +52,17 @@ export const Ellipsis: FunctionComponent<
     onChange,
     ...rest
   } = { ...defaultProps, ...props }
+  const rtl = useRtl()
   let container: any = null
-  let maxHeight = 0 // 当行的最大高度
+  let maxHeight = 0
   const [exceeded, setExceeded] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const ellipsis = useRef<EllipsisValue>()
   const root = useRef<HTMLDivElement>(null)
-
-  const classes = classNames(classPrefix, className)
+  const rtlClasses = classNames({
+    [`${classPrefix}-rtl`]: rtl,
+  })
+  const classes = classNames(classPrefix, rtlClasses, className)
 
   useIsomorphicLayoutEffect(() => {
     if (content) {
@@ -75,7 +79,6 @@ export const Ellipsis: FunctionComponent<
     styleNames.forEach((name) => {
       container.style.setProperty(name, originStyle.getPropertyValue(name))
     })
-
     container.style.position = 'fixed'
     container.style.left = '999999px'
     container.style.top = '999999px'
@@ -91,13 +94,11 @@ export const Ellipsis: FunctionComponent<
     const lineH = pxToNumber(
       originStyle.lineHeight === 'normal' ? lineHeight : originStyle.lineHeight
     )
-
     maxHeight = Math.floor(
       lineH * (Number(rows) + 0.5) +
         pxToNumber(originStyle.paddingTop) +
         pxToNumber(originStyle.paddingBottom)
     )
-
     container.innerText = content
     document.body.appendChild(container)
     calcEllipse()
@@ -111,14 +112,11 @@ export const Ellipsis: FunctionComponent<
     } else {
       setExceeded(true)
       const end = content.length
-
       const middle = Math.floor((0 + end) / 2)
-
       const ellipsised =
         direction === 'middle'
           ? tailorMiddle([0, middle], [middle, end])
           : tailor(0, end)
-
       ellipsis.current = ellipsised
     }
   }
@@ -129,7 +127,6 @@ export const Ellipsis: FunctionComponent<
   ) => {
     const actionText = expanded ? collapseText : expandText
     const end = content.length
-
     if (right - left <= 1) {
       if (direction === 'end') {
         return {
@@ -146,7 +143,6 @@ export const Ellipsis: FunctionComponent<
     } else {
       container.innerText = actionText + symbol + content.slice(middle, end)
     }
-
     if (container.offsetHeight <= maxHeight) {
       if (direction === 'end') {
         return tailor(middle, right)
@@ -202,7 +198,6 @@ export const Ellipsis: FunctionComponent<
     return match ? Number(match[0]) : 0
   }
 
-  // 展开收起
   const clickHandle = (type: number) => {
     if (type === 1) {
       setExpanded(true)
@@ -213,51 +208,47 @@ export const Ellipsis: FunctionComponent<
     }
   }
 
-  // 文本点击
   const handleClick = () => {
     onClick && onClick()
   }
   return (
     <div className={classes} onClick={handleClick} ref={root} {...rest}>
-      <div>
-        {!exceeded ? content : null}
-        {exceeded && !expanded ? (
-          <>
-            {ellipsis.current?.leading}
-            {expandText ? (
-              <span
-                className="nut-ellipsis-text"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  clickHandle(1)
-                }}
-              >
-                {expandText}
-              </span>
-            ) : null}
-            {ellipsis.current?.tailing}
-          </>
-        ) : null}
-        {exceeded && expanded ? (
-          <>
-            {content}
-            {expandText ? (
-              <span
-                className="nut-ellipsis-text"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  clickHandle(2)
-                }}
-              >
-                {collapseText}
-              </span>
-            ) : null}
-          </>
-        ) : null}
-      </div>
+      {!exceeded ? content : null}
+      {exceeded && !expanded ? (
+        <span>
+          {ellipsis.current?.leading}
+          {expandText ? (
+            <span
+              className="nut-ellipsis-text"
+              onClick={(e) => {
+                e.stopPropagation()
+                clickHandle(1)
+              }}
+            >
+              {expandText}
+            </span>
+          ) : null}
+          {ellipsis.current?.tailing}
+        </span>
+      ) : null}
+      {exceeded && expanded ? (
+        <span>
+          {content}
+          {expandText ? (
+            <span
+              className="nut-ellipsis-text"
+              onClick={(e) => {
+                e.stopPropagation()
+                clickHandle(2)
+              }}
+            >
+              {collapseText}
+            </span>
+          ) : null}
+        </span>
+      ) : null}
     </div>
   )
 }
 
-Ellipsis.defaultProps = defaultProps
 Ellipsis.displayName = 'NutEllipsis'

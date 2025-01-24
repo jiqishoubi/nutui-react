@@ -1,11 +1,16 @@
-import React, { FunctionComponent, useEffect, useState, useRef } from 'react'
+import React, {
+  FunctionComponent,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from 'react'
 import type { MouseEvent } from 'react'
 import { Top } from '@nutui/icons-react'
 import classNames from 'classnames'
 import { BasicComponent, ComponentDefaults } from '@/utils/typings'
-import requestAniFrame from '@/utils/raf'
-
-declare const window: any
+import requestAniFrame, { cancelRaf } from '@/utils/raf'
+import { useRtl } from '@/packages/configprovider'
 
 export interface BackTopProps extends BasicComponent {
   target: string
@@ -26,6 +31,7 @@ const defaultProps = {
 export const BackTop: FunctionComponent<
   Partial<BackTopProps> & Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'>
 > = (props) => {
+  const rtl = useRtl()
   const {
     children,
     target,
@@ -41,40 +47,40 @@ export const BackTop: FunctionComponent<
   }
 
   const classPrefix = 'nut-backtop'
-
   const [backTop, SetBackTop] = useState(false)
   const [scrollTop, SetScrollTop] = useState(0)
   let startTime = 0
-  const scrollEl: any = useRef<any>(null)
-  // 初始化
-  useEffect(() => {
-    init()
+  const scrollEl = useRef<any>(null)
+  const cls = classNames(classPrefix, { show: backTop }, className)
 
-    return () => removeEventListener()
-  }, [])
+  const scrollListener = useCallback(() => {
+    let top = null
+    if (scrollEl.current instanceof Window) {
+      top = scrollEl.current.scrollY
+    } else {
+      top = scrollEl.current?.scrollTop
+    }
+    SetScrollTop(top)
+    SetBackTop(top >= threshold)
+  }, [threshold])
 
-  const init = () => {
+  const init = useCallback(() => {
     if (target && document.getElementById(target)) {
-      scrollEl.current = document.getElementById(target) as HTMLElement | Window
+      scrollEl.current = document.getElementById(target)
     } else {
       scrollEl.current = window
     }
-    addEventListener()
-    initCancelAniFrame()
-  }
-  const scrollListener = () => {
-    let top: any = null
-    if (scrollEl.current instanceof Window) {
-      top = scrollEl.current.pageYOffset
-      SetScrollTop(top)
-    } else {
-      top = scrollEl.current.scrollTop
-      SetScrollTop(top)
-    }
-    const showBtn = top >= threshold
+    scrollEl.current?.addEventListener('scroll', scrollListener, false)
+    scrollEl.current?.addEventListener('resize', scrollListener, false)
+  }, [target, scrollListener])
 
-    SetBackTop(showBtn)
-  }
+  useEffect(() => {
+    init()
+    return () => {
+      scrollEl.current?.removeEventListener('scroll', scrollListener, false)
+      scrollEl.current?.removeEventListener('resize', scrollListener, false)
+    }
+  }, [init, scrollListener])
 
   const scroll = (y = 0) => {
     if (scrollEl.current instanceof Window) {
@@ -92,64 +98,34 @@ export const BackTop: FunctionComponent<
       scroll(y)
       cid = requestAniFrame(fn)
       if (t === duration || y === 0) {
-        window.cancelAnimationFrame(cid)
+        cancelRaf(cid)
       }
     })
   }
 
-  const initCancelAniFrame = () => {
-    window.cancelAnimationFrame = window.webkitCancelAnimationFrame
-  }
-
-  // 监听事件
-  function addEventListener() {
-    scrollEl.current?.addEventListener('scroll', scrollListener, false)
-    scrollEl.current?.addEventListener('resize', scrollListener, false)
-  }
-
-  // 移除监听事件
-  function removeEventListener() {
-    scrollEl.current?.removeEventListener('scroll', scrollListener, false)
-    scrollEl.current?.removeEventListener('resize', scrollListener, false)
-  }
-
-  // 返回顶部点击事件
   const goTop = (e: MouseEvent<HTMLDivElement>) => {
     onClick && onClick(e)
-    const otime = +new Date()
-    startTime = otime
+    startTime = +new Date()
     duration > 0 ? scrollAnimation() : scroll()
   }
 
-  const styles = style
-    ? {
-        zIndex,
-        ...style,
-      }
-    : {
-        right: '10px',
-        bottom: '20px',
-        zIndex,
-      }
+  const styles =
+    Object.keys(style || {}).length !== 0
+      ? {
+          zIndex,
+          ...style,
+        }
+      : {
+          [rtl ? 'left' : 'right']: '10px',
+          bottom: '20px',
+          zIndex,
+        }
 
   return (
-    <div
-      className={classNames(
-        classPrefix,
-        {
-          show: backTop,
-        },
-        className
-      )}
-      style={styles}
-      onClick={(e) => {
-        goTop(e)
-      }}
-    >
+    <div className={cls} style={styles} onClick={(e) => goTop(e)}>
       {children || <Top width={19} height={19} className="nut-backtop-main" />}
     </div>
   )
 }
 
-BackTop.defaultProps = defaultProps
 BackTop.displayName = 'NutBackTop'

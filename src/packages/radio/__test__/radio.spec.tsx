@@ -40,7 +40,7 @@ describe('radio', () => {
   })
 
   test('radioGroup onChange toBeCalled', () => {
-    const changeFn = jest.fn()
+    const changeFn = vi.fn()
     const RadioGroupLast = () => {
       const [radioVal] = useState('1')
       return (
@@ -87,5 +87,28 @@ describe('radio', () => {
       )
     }
     const { container } = render(<RadioGroupOptions />)
+  })
+
+  test('Render radios by shape', () => {
+    const RadioGroupLast = () => {
+      const [radioVal] = useState('1')
+      return (
+        <>
+          <RadioGroup value={radioVal} shape="button">
+            <Radio data-testid="shape-round" shape="round" value="1">
+              选项1
+            </Radio>
+            <Radio disabled value="2">
+              选项2
+            </Radio>
+            <Radio value="3" data-testid="r3">
+              选项3
+            </Radio>
+          </RadioGroup>
+        </>
+      )
+    }
+    const { container, getByTestId } = render(<RadioGroupLast />)
+    expect(container.querySelectorAll('.nut-radio-button').length).toBe(3)
   })
 })
